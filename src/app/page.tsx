@@ -9,6 +9,7 @@ export default function Home() {
   const discordButtonRef = useRef<HTMLButtonElement>(null);
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
   const [isPortuguese, setIsPortuguese] = useState(false); // State for language
+  const [isTouch, setIsTouch] = useState(false);
 
   const openDiscordPopup = () => {
     setIsDiscordPopupOpen(true);
@@ -135,11 +136,26 @@ export default function Home() {
 
   // Function to determine if it's a touch device
   const isTouchDevice = () => {
-    return (
-      "ontouchstart" in window ||
-      navigator.maxTouchPoints > 0
-    );
+    if (typeof window !== "undefined") {
+      return (
+        "ontouchstart" in window ||
+        navigator.maxTouchPoints > 0 ||
+        (navigator as any).msMaxTouchPoints > 0
+      );
+    }
+    return false;
   };
+
+  // Use a more robust way to apply hover/active styles
+  const skillButtonStyle = (isTouch: boolean) => {
+    return `bg-black text-white border-3 border-white px-4 py-2 rounded-full ${
+      isTouch ? "active:bg-gray-600" : "hover:bg-gray-600"
+    }`;
+  };
+
+  useEffect(() => {
+    setIsTouch(isTouchDevice());
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-8 gap-8 font-sans relative">
@@ -249,48 +265,12 @@ export default function Home() {
         </h2>
         <div className="flex flex-wrap gap-4 justify-center">
           {/* Example Skill */}
-          <div
-            className={`bg-black text-white border-3 border-white px-4 py-2 rounded-full ${
-              isTouchDevice() ? "active:bg-gray-600" : "hover:bg-gray-600"
-            }`}
-          >
-            C
-          </div>
-          <div
-            className={`bg-black text-white border-3 border-white px-4 py-2 rounded-full ${
-              isTouchDevice() ? "active:bg-gray-600" : "hover:bg-gray-600"
-            }`}
-          >
-            Haskell
-          </div>
-          <div
-            className={`bg-black text-white border-3 border-white px-4 py-2 rounded-full ${
-              isTouchDevice() ? "active:bg-gray-600" : "hover:bg-gray-600"
-            }`}
-          >
-            JavaScript
-          </div>
-          <div
-            className={`bg-black text-white border-3 border-white px-4 py-2 rounded-full ${
-              isTouchDevice() ? "active:bg-gray-600" : "hover:bg-gray-600"
-            }`}
-          >
-            SQL
-          </div>
-          <div
-            className={`bg-black text-white border-3 border-white px-4 py-2 rounded-full ${
-              isTouchDevice() ? "active:bg-gray-600" : "hover:bg-gray-600"
-            }`}
-          >
-            Python
-          </div>
-          <div
-            className={`bg-black text-white border-3 border-white px-4 py-2 rounded-full ${
-              isTouchDevice() ? "active:bg-gray-600" : "hover:bg-gray-600"
-            }`}
-          >
-            HTML/CSS
-          </div>
+          <div className={skillButtonStyle(isTouch)}>C</div>
+          <div className={skillButtonStyle(isTouch)}>Haskell</div>
+          <div className={skillButtonStyle(isTouch)}>JavaScript</div>
+          <div className={skillButtonStyle(isTouch)}>SQL</div>
+          <div className={skillButtonStyle(isTouch)}>Python</div>
+          <div className={skillButtonStyle(isTouch)}>HTML/CSS</div>
           {/* Add more skills here */}
         </div>
       </div>
