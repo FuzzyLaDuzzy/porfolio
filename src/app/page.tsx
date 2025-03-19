@@ -1,19 +1,24 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 
 export default function Home() {
-  const [isPortuguese, setIsPortuguese] = useState(false); // State for language
+  const [isPortuguese, setIsPortuguese] = useState(false);
   const [isTouch, setIsTouch] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false); // State for hamburger menu
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const toggleLanguage = () => {
     setIsPortuguese(!isPortuguese);
   };
 
-  // Animation variants for the name
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
+
   const nameVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -26,7 +31,6 @@ export default function Home() {
     },
   };
 
-  // Text content based on language
   const textContent = {
     en: {
       name: "Flávio Silva",
@@ -103,7 +107,6 @@ export default function Home() {
   const currentLanguage = isPortuguese ? "pt" : "en";
   const currentText = textContent[currentLanguage];
 
-  // Function to determine if it's a touch device
   const isTouchDevice = () => {
     if (typeof window !== "undefined") {
       return (
@@ -115,15 +118,13 @@ export default function Home() {
     return false;
   };
 
-  // Function to determine if it's a mobile device
   const isMobileDevice = () => {
     if (typeof window !== "undefined") {
-      return window.innerWidth < 768; // Example breakpoint for mobile
+      return window.innerWidth < 768;
     }
     return false;
   };
 
-  // Use a more robust way to apply hover/active styles
   const skillButtonStyle = (isTouch: boolean) => {
     return `bg-black text-white border-3 border-white px-4 py-2 rounded-full ${
       isTouch ? "active:bg-gray-600" : "hover:bg-gray-600"
@@ -140,16 +141,89 @@ export default function Home() {
 
     window.addEventListener("resize", handleResize);
 
+    if (videoRef.current) {
+      videoRef.current.play().catch((error) => {
+        console.error("Error playing video:", error);
+      });
+    }
+
     return () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-8 gap-8 font-sans relative">
+    <div className="min-h-screen flex flex-col items-center justify-center p-8 gap-8 font-sans relative overflow-hidden">
+      {/* Video Background */}
+      <div className="absolute top-0 left-0 w-full h-full z-[-1] overflow-hidden opacity-50">
+        <video
+          ref={videoRef}
+          className="min-w-full min-h-full object-cover"
+          autoPlay
+          loop
+          muted
+          playsInline
+        >
+          <source src="/wavy.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+
+      {/* Content Overlay */}
+      <div className="absolute top-0 left-0 w-full h-full z-0 bg-black/20"></div>
+
+      {/* Hamburger Menu for Mobile */}
+      {isMobile && (
+        <div className="absolute top-4 left-4 z-20">
+          <button
+            onClick={toggleMenu}
+            className="bg-black text-white border-2 border-white px-4 py-2 rounded-md"
+          >
+            ☰
+          </button>
+          {menuOpen && (
+            <div className="fixed top-0 left-0 w-full h-full bg-black/90 text-white flex flex-col items-center justify-center z-30">
+              <button
+                onClick={toggleMenu}
+                className="absolute top-4 right-4 bg-white text-black px-4 py-2 rounded-md"
+              >
+                ✕
+              </button>
+              <ul className="flex flex-col gap-4 text-center">
+                <li className="text-xl">
+                  <a href="#experience" onClick={toggleMenu}>
+                    {currentText.experience}
+                  </a>
+                </li>
+                <li className="text-xl">
+                  <a href="#skills" onClick={toggleMenu}>
+                    {currentText.skills}
+                  </a>
+                </li>
+                <li className="text-xl">
+                  <a href="#projects" onClick={toggleMenu}>
+                    {currentText.projects}
+                  </a>
+                </li>
+                <li className="text-xl">
+                  <a href="#education" onClick={toggleMenu}>
+                    {currentText.education}
+                  </a>
+                </li>
+                <li className="text-xl">
+                  <a href="#contacts" onClick={toggleMenu}>
+                    {currentText.contacts}
+                  </a>
+                </li>
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Language Toggle Button */}
       {!isMobile && (
-        <div className="absolute top-4 right-4">
+        <div className="absolute top-4 right-4 z-10">
           <button
             onClick={toggleLanguage}
             className="bg-black text-white border-2 border-white px-6 py-3 rounded-md hover:bg-gray-600"
@@ -158,8 +232,9 @@ export default function Home() {
           </button>
         </div>
       )}
+
       {/* Profile Section */}
-      <div className="profile-image-container w-64 h-64 sm:w-80 sm:h-80 overflow-hidden shadow-lg relative rounded-full">
+      <div className="profile-image-container w-64 h-64 sm:w-80 sm:h-80 overflow-hidden shadow-lg relative rounded-full z-10">
         <Image
           src="/profile.png"
           alt={currentText.name}
@@ -170,15 +245,15 @@ export default function Home() {
       </div>
       {/* Animated Name */}
       <motion.h1
-        className="text-4xl font-bold"
+        className="text-4xl font-bold text-white z-10"
         variants={nameVariants}
         initial="hidden"
         animate="visible"
       >
         {currentText.name}
       </motion.h1>
-      <p className="text-lg text-gray-600">{currentText.title}</p>
-      <div className="flex gap-4">
+      <p className="text-lg text-gray-300 z-10">{currentText.title}</p>
+      <div className="flex gap-4 z-10">
         <a
           href="https://github.com/FuzzyLaDuzzy"
           target="_blank"
@@ -196,19 +271,19 @@ export default function Home() {
           <Image src="/images.png" alt="LinkedIn" width={24} height={24} />
         </a>
       </div>
-      <div className="max-w-2xl text-center">
-        <h2 className="text-2xl font-semibold mb-4">About Me</h2>
-        <p className="text-gray-700">{currentText.aboutMe}</p>
+      <div id="about" className="max-w-2xl text-center z-10">
+        <h2 className="text-2xl font-semibold mb-4 text-white">About Me</h2>
+        <p className="text-gray-300">{currentText.aboutMe}</p>
       </div>
 
       {/* Experience Section */}
-      <div className="max-w-2xl w-full">
-        <h2 className="text-2xl font-semibold mb-4 text-center">
+      <div id="experience" className="max-w-2xl w-full z-10">
+        <h2 className="text-2xl font-semibold mb-4 text-center text-white">
           {currentText.experience}
         </h2>
         <div className="flex flex-col gap-4">
           {/* Example Experience Entry */}
-          <div className="border p-4 rounded-md">
+          <div className="border p-4 rounded-md bg-black/90 text-white"> {/* Changed to black/90 */}
             <h3 className="font-semibold">None</h3>
             <p className="mt-2">{currentText.experienceNone}</p>
           </div>
@@ -216,8 +291,8 @@ export default function Home() {
         </div>
       </div>
       {/* Skills Section */}
-      <div className="max-w-2xl w-full">
-        <h2 className="text-2xl font-semibold mb-4 text-center">
+      <div id="skills" className="max-w-2xl w-full z-10">
+        <h2 className="text-2xl font-semibold mb-4 text-center text-white">
           {currentText.skills}
         </h2>
         <div className="flex flex-wrap gap-4 justify-center">
@@ -232,16 +307,16 @@ export default function Home() {
         </div>
       </div>
       {/* Projects Section */}
-      <div className="max-w-2xl w-full">
-        <h2 className="text-2xl font-semibold mb-4 text-center">
+      <div id="projects" className="max-w-2xl w-full z-10">
+        <h2 className="text-2xl font-semibold mb-4 text-center text-white">
           {currentText.projects}
         </h2>
         <div className="flex flex-col gap-4">
           {/* Example Project Entry 1 */}
-          <div className="border p-4 rounded-md">
+          <div className="border p-4 rounded-md bg-black/90 text-white"> {/* Changed to black/90 */}
             <h3 className="font-semibold">{currentText.project1Title}</h3>
             <div className="h-2"></div>
-            <div className="text-gray-600">
+            <div className="text-gray-300">
               <p>{currentText.project1Desc1}</p>
               <p>{currentText.project1Desc2}</p>
               <p>{currentText.project1Desc3}</p>
@@ -258,17 +333,17 @@ export default function Home() {
             </div>
           </div>
           {/* Example Project Entry 2 */}
-          <div className="border p-4 rounded-md">
+          <div className="border p-4 rounded-md bg-black/90 text-white"> {/* Changed to black/90 */}
             <h3 className="font-semibold">{currentText.project2Title}</h3>
             <div className="h-2"></div>
-            <div className="text-gray-600">
+            <div className="text-gray-300">
               <p>{currentText.project2Desc1}</p>
               <p>{currentText.project2Desc2}</p>
               <p>{currentText.project2Desc3}</p>
             </div>
             <div className="mt-2 flex gap-2">
               <a
-                href="https://github.com/FuzzyLaDuzzy/li3"
+                href="https://github.com/josevasconcelos2002/LI3-project"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-500 hover:underline"
@@ -282,32 +357,32 @@ export default function Home() {
       </div>
 
       {/* Education Section */}
-      <div className="max-w-2xl w-full">
-        <h2 className="text-2xl font-semibold mb-4 text-center">
+      <div id="education" className="max-w-2xl w-full z-10">
+        <h2 className="text-2xl font-semibold mb-4 text-center text-white">
           {currentText.education}
         </h2>
         <div className="flex flex-col gap-4">
           {/* Example Education Entry */}
-          <div className="border p-4 rounded-md">
+          <div className="border p-4 rounded-md bg-black/90 text-white"> {/* Changed to black/90 */}
             <h3 className="font-semibold">{currentText.bachelors}</h3>
-            <p className="text-gray-600">[2020] - [2024]</p>
+            <p className="text-gray-300">[2020] - [2024]</p>
           </div>
           {/* Add more education entries here */}
-          <div className="border p-4 rounded-md">
+          <div className="border p-4 rounded-md bg-black/90 text-white"> {/* Changed to black/90 */}
             <h3 className="font-semibold">{currentText.masters}</h3>
-            <p className="text-gray-600">[2024] - [Current]</p>
+            <p className="text-gray-300">[2024] - [Current]</p>
           </div>
         </div>
       </div>
       {/* Contacts Section */}
-      <div className="max-w-2xl w-full">
-        <h2 className="text-2xl font-semibold mb-4 text-center">
+      <div id="contacts" className="max-w-2xl w-full z-10">
+        <h2 className="text-2xl font-semibold mb-4 text-center text-white">
           {currentText.contacts}
         </h2>
         <div className="flex flex-col gap-4">
-          <div className="border p-4 rounded-md">
+          <div className="border p-4 rounded-md bg-black/90 text-white"> {/* Changed to black/90 */}
             <h3 className="font-semibold">{currentText.email}</h3>
-            <p className="text-gray-600">
+            <p className="text-gray-300">
               <a
                 href={`mailto:${currentText.emailAddress}`}
                 className="text-blue-500 hover:underline"
@@ -316,16 +391,14 @@ export default function Home() {
               </a>
             </p>
           </div>
-          <div className="border p-4 rounded-md">
+          <div className="border p-4 rounded-md bg-black/90 text-white"> {/* Changed to black/90 */}
             <h3 className="font-semibold">{currentText.discord}</h3>
-            <p className="text-gray-600">
-              {currentText.discordusername}
-            </p>
+            <p className="text-gray-300">{currentText.discordusername}</p>
           </div>
         </div>
       </div>
       {/* Copyright */}
-      <div className="w-full text-center mt-8 text-gray-500">
+      <div className="w-full text-center mt-8 text-gray-300 z-10">
         <p>{currentText.copyright}</p>
       </div>
     </div>
