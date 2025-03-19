@@ -1,37 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 
 export default function Home() {
-  const [isDiscordPopupOpen, setIsDiscordPopupOpen] = useState(false);
-  const discordButtonRef = useRef<HTMLButtonElement>(null);
-  const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
   const [isPortuguese, setIsPortuguese] = useState(false); // State for language
   const [isTouch, setIsTouch] = useState(false);
-
-  const openDiscordPopup = () => {
-    setIsDiscordPopupOpen(true);
-  };
-
-  const closeDiscordPopup = () => {
-    setIsDiscordPopupOpen(false);
-  };
+  const [isMobile, setIsMobile] = useState(false);
 
   const toggleLanguage = () => {
     setIsPortuguese(!isPortuguese);
   };
-
-  useEffect(() => {
-    if (isDiscordPopupOpen && discordButtonRef.current) {
-      const buttonRect = discordButtonRef.current.getBoundingClientRect();
-      setPopupPosition({
-        x: buttonRect.right + 10,
-        y: buttonRect.top - 10,
-      });
-    }
-  }, [isDiscordPopupOpen]);
 
   // Animation variants for the name
   const nameVariants = {
@@ -41,27 +21,6 @@ export default function Home() {
       y: 0,
       transition: {
         duration: 0.8,
-        ease: "easeInOut",
-      },
-    },
-  };
-
-  // Animation variants for the Discord popup
-  const popupVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: {
-        duration: 0.3,
-        ease: "easeInOut",
-      },
-    },
-    exit: {
-      opacity: 0,
-      scale: 0.8,
-      transition: {
-        duration: 0.2,
         ease: "easeInOut",
       },
     },
@@ -98,6 +57,11 @@ export default function Home() {
       masters: "[Master's Degree] - [University of Minho]",
       copyright: "© 2025 Flávio Silva. All rights reserved.",
       discordName: "fuzzymind",
+      contacts: "Contacts",
+      email: "Email",
+      emailAddress: "silvaflavio820@gmail.com",
+      discord: "Discord",
+      discordusername: "fuzzymind",
     },
     pt: {
       name: "Flávio Silva",
@@ -128,6 +92,11 @@ export default function Home() {
       masters: "[Mestrado] - [Universidade do Minho]",
       copyright: "© 2025 Flávio Silva. Todos os direitos reservados.",
       discordName: "fuzzymind",
+      contacts: "Contactos",
+      email: "Email",
+      emailAddress: "silvaflavio820@gmail.com",
+      discord: "Discord",
+      discordusername: "fuzzymind",
     },
   };
 
@@ -146,6 +115,14 @@ export default function Home() {
     return false;
   };
 
+  // Function to determine if it's a mobile device
+  const isMobileDevice = () => {
+    if (typeof window !== "undefined") {
+      return window.innerWidth < 768; // Example breakpoint for mobile
+    }
+    return false;
+  };
+
   // Use a more robust way to apply hover/active styles
   const skillButtonStyle = (isTouch: boolean) => {
     return `bg-black text-white border-3 border-white px-4 py-2 rounded-full ${
@@ -155,49 +132,36 @@ export default function Home() {
 
   useEffect(() => {
     setIsTouch(isTouchDevice());
+    setIsMobile(isMobileDevice());
+
+    const handleResize = () => {
+      setIsMobile(isMobileDevice());
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-8 gap-8 font-sans relative">
       {/* Language Toggle Button */}
-      <div className="absolute top-4 right-4">
-        <button
-          onClick={toggleLanguage}
-          className="bg-black text-white border-2 border-white px-6 py-3 rounded-md hover:bg-gray-600"
-        >
-          {isPortuguese ? "English" : "Português"}
-        </button>
-      </div>
-      {/* Discord Popup */}
-      <AnimatePresence>
-        {isDiscordPopupOpen && (
-          <motion.div
-            className="absolute bg-black p-4 rounded-md shadow-lg z-50 border-2 border-white"
-            style={{
-              top: popupPosition.y,
-              left: popupPosition.x,
-            }}
-            variants={popupVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
+      {!isMobile && (
+        <div className="absolute top-4 right-4">
+          <button
+            onClick={toggleLanguage}
+            className="bg-black text-white border-2 border-white px-6 py-3 rounded-md hover:bg-gray-600"
           >
-            <button
-              onClick={closeDiscordPopup}
-              className="absolute top-1 right-1 text-white hover:text-gray-300"
-            >
-              X
-            </button>
-            <p className="text-2xl font-bold text-white">
-              {currentText.discordName}
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            {isPortuguese ? "English" : "Português"}
+          </button>
+        </div>
+      )}
       {/* Profile Section */}
-      <div className="profile-image-container w-80 h-80 overflow-hidden shadow-lg relative rounded-full">
+      <div className="profile-image-container w-64 h-64 sm:w-80 sm:h-80 overflow-hidden shadow-lg relative rounded-full">
         <Image
-          src="/lebron.avif"
+          src="/profile.png"
           alt={currentText.name}
           width={1000}
           height={1000}
@@ -231,13 +195,6 @@ export default function Home() {
         >
           <Image src="/images.png" alt="LinkedIn" width={24} height={24} />
         </a>
-        <button
-          onClick={openDiscordPopup}
-          className="hover:text-blue-500"
-          ref={discordButtonRef}
-        >
-          <Image src="/discord.png" alt="Discord" width={24} height={24} />
-        </button>
       </div>
       <div className="max-w-2xl text-center">
         <h2 className="text-2xl font-semibold mb-4">About Me</h2>
@@ -339,6 +296,31 @@ export default function Home() {
           <div className="border p-4 rounded-md">
             <h3 className="font-semibold">{currentText.masters}</h3>
             <p className="text-gray-600">[2024] - [Current]</p>
+          </div>
+        </div>
+      </div>
+      {/* Contacts Section */}
+      <div className="max-w-2xl w-full">
+        <h2 className="text-2xl font-semibold mb-4 text-center">
+          {currentText.contacts}
+        </h2>
+        <div className="flex flex-col gap-4">
+          <div className="border p-4 rounded-md">
+            <h3 className="font-semibold">{currentText.email}</h3>
+            <p className="text-gray-600">
+              <a
+                href={`mailto:${currentText.emailAddress}`}
+                className="text-blue-500 hover:underline"
+              >
+                {currentText.emailAddress}
+              </a>
+            </p>
+          </div>
+          <div className="border p-4 rounded-md">
+            <h3 className="font-semibold">{currentText.discord}</h3>
+            <p className="text-gray-600">
+              {currentText.discordusername}
+            </p>
           </div>
         </div>
       </div>
