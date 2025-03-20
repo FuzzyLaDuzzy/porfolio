@@ -10,6 +10,36 @@ export default function Home() {
   const [isMobile, setIsMobile] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false); // State for hamburger menu
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [currentTitleIndex, setCurrentTitleIndex] = useState(0);
+  const [displayedTitle, setDisplayedTitle] = useState("");
+  const titles = [
+    "Web Developer",
+    "Designer",
+    "Software Engineer",
+  ];
+
+  useEffect(() => {
+    let charIndex = 0;
+    const currentTitle = titles[currentTitleIndex];
+    const interval = setInterval(() => {
+      setDisplayedTitle((prev) => currentTitle.slice(0, charIndex + 1));
+      charIndex++;
+      if (charIndex === currentTitle.length) {
+        clearInterval(interval);
+        setTimeout(() => {
+          setCurrentTitleIndex((prevIndex) => (prevIndex + 1) % titles.length);
+        }, 6000); // Pause for 3 seconds before starting the next title
+      }
+    }, 100); // Change each letter every 150ms
+    return () => clearInterval(interval);
+  }, [currentTitleIndex]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTitleIndex((prevIndex) => (prevIndex + 1) % titles.length);
+    }, 6000); // Change title every 3 seconds
+    return () => clearInterval(interval);
+  }, []);
 
   const toggleLanguage = () => {
     setIsPortuguese(!isPortuguese);
@@ -55,7 +85,7 @@ export default function Home() {
         "The Storing and organization of the data is make with the use of HashTables and Structs.",
       project2Desc3:
         "Includes an interface that displays the info about each query given.",
-      githubRepo: "GitHub Repo",
+      githubRepo: "See Code",
       education: "Education",
       bachelors: "[Bachelor's Degree] - [University of Minho]",
       masters: "[Master's Degree] - [University of Minho]",
@@ -66,6 +96,7 @@ export default function Home() {
       emailAddress: "silvaflavio820@gmail.com",
       discord: "Discord",
       discordusername: "fuzzymind",
+      downloadResume: "Download Resume",
     },
     pt: {
       name: "Flávio Silva",
@@ -101,6 +132,7 @@ export default function Home() {
       emailAddress: "silvaflavio820@gmail.com",
       discord: "Discord",
       discordusername: "fuzzymind",
+      downloadResume: "Baixar Currículo",
     },
   };
 
@@ -155,7 +187,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-8 gap-8 font-sans relative overflow-hidden">
       {/* Video Background */}
-      <div className="absolute top-0 left-0 w-full h-full z-[-1] overflow-hidden opacity-50">
+      <div className="absolute top-0 left-0 w-full h-full z-[-1] overflow-hidden opacity-30">
         <video
           ref={videoRef}
           className="min-w-full min-h-full object-cover"
@@ -172,54 +204,65 @@ export default function Home() {
       {/* Content Overlay */}
       <div className="absolute top-0 left-0 w-full h-full z-0 bg-black/20"></div>
 
-      {/* Hamburger Menu for Mobile */}
-      {isMobile && (
-        <div className="absolute top-4 left-4 z-20">
-          <button
-            onClick={toggleMenu}
-            className="bg-black text-white border-2 border-white px-4 py-2 rounded-md"
-          >
-            ☰
-          </button>
-          {menuOpen && (
-            <div className="fixed top-0 left-0 w-full h-full bg-black/90 text-white flex flex-col items-center justify-center z-30">
-              <button
-                onClick={toggleMenu}
-                className="absolute top-4 right-4 bg-white text-black px-4 py-2 rounded-md"
-              >
-                ✕
-              </button>
-              <ul className="flex flex-col gap-4 text-center">
+      {/* Hamburger Menu for All Devices */}
+      <div className="absolute top-4 left-4 z-20">
+        <button
+          onClick={toggleMenu}
+          className="bg-black text-white border-2 border-white px-4 py-2 rounded-md"
+        >
+          ☰
+        </button>
+        {menuOpen && (
+          <div className="fixed top-0 left-0 w-full h-full bg-black/90 text-white flex flex-col items-center justify-center z-30">
+            <button
+              onClick={toggleMenu}
+              className="absolute top-4 right-4 bg-white text-black px-4 py-2 rounded-md"
+            >
+              ✕
+            </button>
+            <ul className="flex flex-col gap-4 text-center">
+              <li className="text-xl">
+                <a href="#experience" onClick={toggleMenu}>
+                  {currentText.experience}
+                </a>
+              </li>
+              <li className="text-xl">
+                <a href="#skills" onClick={toggleMenu}>
+                  {currentText.skills}
+                </a>
+              </li>
+              <li className="text-xl">
+                <a href="#projects" onClick={toggleMenu}>
+                  {currentText.projects}
+                </a>
+              </li>
+              <li className="text-xl">
+                <a href="#education" onClick={toggleMenu}>
+                  {currentText.education}
+                </a>
+              </li>
+              <li className="text-xl">
+                <a href="#contacts" onClick={toggleMenu}>
+                  {currentText.contacts}
+                </a>
+              </li>
+              {isMobile && (
                 <li className="text-xl">
-                  <a href="#experience" onClick={toggleMenu}>
-                    {currentText.experience}
-                  </a>
+                  <button
+                    onClick={() => {
+                      toggleLanguage();
+                      toggleMenu();
+                    }}
+                    className="bg-white text-black px-4 py-2 rounded-md"
+                  >
+                    {isPortuguese ? "English" : "Português"}
+                  </button>
                 </li>
-                <li className="text-xl">
-                  <a href="#skills" onClick={toggleMenu}>
-                    {currentText.skills}
-                  </a>
-                </li>
-                <li className="text-xl">
-                  <a href="#projects" onClick={toggleMenu}>
-                    {currentText.projects}
-                  </a>
-                </li>
-                <li className="text-xl">
-                  <a href="#education" onClick={toggleMenu}>
-                    {currentText.education}
-                  </a>
-                </li>
-                <li className="text-xl">
-                  <a href="#contacts" onClick={toggleMenu}>
-                    {currentText.contacts}
-                  </a>
-                </li>
-              </ul>
-            </div>
-          )}
-        </div>
-      )}
+              )}
+            </ul>
+          </div>
+        )}
+      </div>
 
       {/* Language Toggle Button */}
       {!isMobile && (
@@ -234,12 +277,12 @@ export default function Home() {
       )}
 
       {/* Profile Section */}
-      <div className="profile-image-container w-64 h-64 sm:w-80 sm:h-80 overflow-hidden shadow-lg relative rounded-full z-10">
+      <div className="profile-image-container w-64 h-80 sm:w-80 sm:h-100 overflow-hidden shadow-lg relative rounded-full z-10">
         <Image
           src="/profile.png"
           alt={currentText.name}
-          width={1000}
-          height={1000}
+          width={1100}
+          height={1200}
           className="object-cover w-full h-full"
         />
       </div>
@@ -252,7 +295,19 @@ export default function Home() {
       >
         {currentText.name}
       </motion.h1>
-      <p className="text-lg text-gray-300 z-10">{currentText.title}</p>
+      <p className="text-lg text-gray-300 z-10">
+        {displayedTitle}
+      </p>
+      <div className="flex flex-col items-center gap-4 z-10">
+        <a
+          href="/cv.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-black text-white border-2 border-white px-6 py-3 rounded-md hover:bg-gray-600"
+        >
+          {currentText.downloadResume}
+        </a>
+      </div>
       <div className="flex gap-4 z-10">
         <a
           href="https://github.com/FuzzyLaDuzzy"
@@ -263,17 +318,19 @@ export default function Home() {
           <Image src="/github.png" alt="GitHub" width={24} height={24} />
         </a>
         <a
-          href="https://www.linkedin.com/in/fl%C3%A3vio-silva-5a8423250/"
+          href="https://www.linkedin.com/in/flávio-alex-silva/"
           target="_blank"
           rel="noopener noreferrer"
           className="hover:text-blue-500"
         >
-          <Image src="/images.png" alt="LinkedIn" width={24} height={24} />
+          <Image src="/linkedin.png" alt="LinkedIn" width={24} height={24} />
         </a>
       </div>
-      <div id="about" className="max-w-2xl text-center z-10">
-        <h2 className="text-2xl font-semibold mb-4 text-white">About Me</h2>
-        <p className="text-gray-300">{currentText.aboutMe}</p>
+      <div id="about" className="max-w-2xl w-full z-10">
+        <h2 className="text-2xl font-semibold mb-4 text-center text-white">About Me</h2>
+        <div className="border p-4 rounded-md bg-black/90 text-white">
+          <p className="text-gray-300">{currentText.aboutMe}</p>
+        </div>
       </div>
 
       {/* Experience Section */}
