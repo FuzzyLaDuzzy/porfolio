@@ -97,6 +97,12 @@ export default function Home() {
       discord: "Discord",
       discordusername: "fuzzymind",
       downloadResume: "Download Resume",
+      githubLink: "https://github.com/FuzzyLaDuzzy",
+      githubUsername: "FuzzyLaDuzzy",
+      linkedinLink: "https://www.linkedin.com/in/flávio-alex-silva/",
+      linkedinUsername: "Flávio Silva",
+      instagramLink: "https://www.instagram.com/flavios.silva.dmwm/",
+      instagramUsername: "flavios.silva.dmwm",
     },
     pt: {
       name: "Flávio Silva",
@@ -133,6 +139,12 @@ export default function Home() {
       discord: "Discord",
       discordusername: "fuzzymind",
       downloadResume: "Baixar Currículo",
+      githubLink: "https://github.com/FuzzyLaDuzzy",
+      githubUsername: "FuzzyLaDuzzy",
+      linkedinLink: "https://www.linkedin.com/in/flávio-alex-silva/",
+      linkedinUsername: "Flávio Silva",
+      instagramLink: "https://www.instagram.com/flavios.silva.dmwm/",
+      instagramUsername: "flavios.silva.dmwm",
     },
   };
 
@@ -212,7 +224,8 @@ export default function Home() {
         >
           ☰
         </button>
-        {menuOpen && (
+        {/* Mobile Menu */}
+        {menuOpen && isMobile && (
           <div className="fixed top-0 left-0 w-full h-full bg-black/90 text-white flex flex-col items-center justify-center z-30">
             <button
               onClick={toggleMenu}
@@ -261,6 +274,55 @@ export default function Home() {
               )}
             </ul>
           </div>
+        )}
+        {/* Desktop Menu */}
+        {menuOpen && !isMobile && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: -10 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="absolute top-16 left-4 bg-black/90 text-white rounded-lg shadow-xl z-30 p-6 min-w-[220px]"
+          >
+            <ul className="flex flex-col gap-3">
+              <li className="text-lg hover:underline">
+                <a href="#experience" onClick={toggleMenu}>
+                  {currentText.experience}
+                </a>
+              </li>
+              <li className="text-lg hover:underline">
+                <a href="#skills" onClick={toggleMenu}>
+                  {currentText.skills}
+                </a>
+              </li>
+              <li className="text-lg hover:underline">
+                <a href="#projects" onClick={toggleMenu}>
+                  {currentText.projects}
+                </a>
+              </li>
+              <li className="text-lg hover:underline">
+                <a href="#education" onClick={toggleMenu}>
+                  {currentText.education}
+                </a>
+              </li>
+              <li className="text-lg hover:underline">
+                <a href="#contacts" onClick={toggleMenu}>
+                  {currentText.contacts}
+                </a>
+              </li>
+              <li className="text-lg">
+                <button
+                  onClick={() => {
+                    toggleLanguage();
+                    toggleMenu();
+                  }}
+                  className="bg-white text-black px-5 py-3 rounded-lg text-lg hover:bg-gray-200"
+                >
+                  {isPortuguese ? "English" : "Português"}
+                </button>
+              </li>
+            </ul>
+          </motion.div>
         )}
       </div>
 
@@ -432,12 +494,14 @@ export default function Home() {
         </div>
       </div>
       {/* Contacts Section */}
+      {/* Contacts Section */}
       <div id="contacts" className="max-w-2xl w-full z-10">
         <h2 className="text-2xl font-semibold mb-4 text-center text-white">
           {currentText.contacts}
         </h2>
         <div className="flex flex-col gap-4">
-          <div className="border p-4 rounded-md bg-black/90 text-white"> {/* Changed to black/90 */}
+          {/* Email */}
+          <div className="border p-4 rounded-md bg-black/90 text-white">
             <h3 className="font-semibold">{currentText.email}</h3>
             <p className="text-gray-300">
               <a
@@ -448,15 +512,58 @@ export default function Home() {
               </a>
             </p>
           </div>
-          <div className="border p-4 rounded-md bg-black/90 text-white"> {/* Changed to black/90 */}
+
+          {/* Discord */}
+          <div className="border p-4 rounded-md bg-black/90 text-white">
             <h3 className="font-semibold">{currentText.discord}</h3>
             <p className="text-gray-300">{currentText.discordusername}</p>
           </div>
+
+          {/* GitHub */}
+          <div className="border p-4 rounded-md bg-black/90 text-white">
+            <h3 className="font-semibold">GitHub</h3>
+            <p className="text-gray-300">
+              <a
+                href={currentText.githubLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:underline"
+              >
+                {currentText.githubUsername}
+              </a>
+            </p>
+          </div>
+
+          {/* LinkedIn */}
+          <div className="border p-4 rounded-md bg-black/90 text-white">
+            <h3 className="font-semibold">LinkedIn</h3>
+            <p className="text-gray-300">
+              <a
+                href={currentText.linkedinLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:underline"
+              >
+                {currentText.linkedinUsername}
+              </a>
+            </p>
+          </div>
+
+          {/* Instagram */}
+          <div className="border p-4 rounded-md bg-black/90 text-white">
+            <h3 className="font-semibold">Instagram</h3>
+            <p className="text-gray-300">
+              <a
+                href={currentText.instagramLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:underline"
+              >
+                {currentText.instagramUsername}
+              </a>
+            </p>
+          </div>
         </div>
-      </div>
-      {/* Copyright */}
-      <div className="w-full text-center mt-8 text-gray-300 z-10">
-        <p>{currentText.copyright}</p>
       </div>
     </div>
   );
