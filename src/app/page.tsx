@@ -12,11 +12,7 @@ export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [currentTitleIndex, setCurrentTitleIndex] = useState(0);
   const [displayedTitle, setDisplayedTitle] = useState("");
-  const titles = [
-    "Web Developer",
-    "Designer",
-    "Software Engineer",
-  ];
+  const titles = ["Web Developer", "Designer", "Software Engineer"];
 
   useEffect(() => {
     let charIndex = 0;
@@ -196,6 +192,14 @@ export default function Home() {
     };
   }, []);
 
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+    setMenuOpen(false);
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-8 gap-8 font-sans relative overflow-hidden">
       {/* Video Background */}
@@ -235,29 +239,29 @@ export default function Home() {
             </button>
             <ul className="flex flex-col gap-4 text-center">
               <li className="text-xl">
-                <a href="#experience" onClick={toggleMenu}>
+                <button onClick={() => scrollToSection("experience")}>
                   {currentText.experience}
-                </a>
+                </button>
               </li>
               <li className="text-xl">
-                <a href="#skills" onClick={toggleMenu}>
+                <button onClick={() => scrollToSection("skills")}>
                   {currentText.skills}
-                </a>
+                </button>
               </li>
               <li className="text-xl">
-                <a href="#projects" onClick={toggleMenu}>
+                <button onClick={() => scrollToSection("projects")}>
                   {currentText.projects}
-                </a>
+                </button>
               </li>
               <li className="text-xl">
-                <a href="#education" onClick={toggleMenu}>
+                <button onClick={() => scrollToSection("education")}>
                   {currentText.education}
-                </a>
+                </button>
               </li>
               <li className="text-xl">
-                <a href="#contacts" onClick={toggleMenu}>
+                <button onClick={() => scrollToSection("contacts")}>
                   {currentText.contacts}
-                </a>
+                </button>
               </li>
               {isMobile && (
                 <li className="text-xl">
@@ -286,29 +290,29 @@ export default function Home() {
           >
             <ul className="flex flex-col gap-3">
               <li className="text-lg hover:underline">
-                <a href="#experience" onClick={toggleMenu}>
+                <button onClick={() => scrollToSection("experience")}>
                   {currentText.experience}
-                </a>
+                </button>
               </li>
               <li className="text-lg hover:underline">
-                <a href="#skills" onClick={toggleMenu}>
+                <button onClick={() => scrollToSection("skills")}>
                   {currentText.skills}
-                </a>
+                </button>
               </li>
               <li className="text-lg hover:underline">
-                <a href="#projects" onClick={toggleMenu}>
+                <button onClick={() => scrollToSection("projects")}>
                   {currentText.projects}
-                </a>
+                </button>
               </li>
               <li className="text-lg hover:underline">
-                <a href="#education" onClick={toggleMenu}>
+                <button onClick={() => scrollToSection("education")}>
                   {currentText.education}
-                </a>
+                </button>
               </li>
               <li className="text-lg hover:underline">
-                <a href="#contacts" onClick={toggleMenu}>
+                <button onClick={() => scrollToSection("contacts")}>
                   {currentText.contacts}
-                </a>
+                </button>
               </li>
               <li className="text-lg">
                 <button
@@ -357,9 +361,7 @@ export default function Home() {
       >
         {currentText.name}
       </motion.h1>
-      <p className="text-lg text-gray-300 z-10">
-        {displayedTitle}
-      </p>
+      <p className="text-lg text-gray-300 z-10">{displayedTitle}</p>
       <div className="flex flex-col items-center gap-4 z-10">
         <a
           href="/cv.pdf"
@@ -377,7 +379,15 @@ export default function Home() {
           rel="noopener noreferrer"
           className="hover:text-blue-500"
         >
-          <Image src="/github.png" alt="GitHub" width={24} height={24} />
+          <Image src="/github.png" alt="GitHub" width={25} height={25} />
+        </a>
+        <a
+          href="https://www.instagram.com/flavios.silva.dmwm/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-blue-500"
+        >
+          <Image src="/insta.png" alt="Instagram" width={22} height={24} />
         </a>
         <a
           href="https://www.linkedin.com/in/flávio-alex-silva/"
@@ -385,24 +395,37 @@ export default function Home() {
           rel="noopener noreferrer"
           className="hover:text-blue-500"
         >
-          <Image src="/linkedin.png" alt="LinkedIn" width={24} height={24} />
+          <Image src="/linkedin2.png" alt="LinkedIn" width={25} height={24} />
         </a>
       </div>
-      <div id="about" className="max-w-2xl w-full z-10">
-        <h2 className="text-2xl font-semibold mb-4 text-center text-white">About Me</h2>
+      {/* Section Wrappers with Conditional Styling */}
+      <div
+        id="about"
+        className={`w-full z-10 ${
+          !isMobile ? "max-w-4xl" : "max-w-2xl"
+        }`}
+      >
+        <h2 className="text-2xl font-semibold mb-4 text-center text-white">
+          About Me
+        </h2>
         <div className="border p-4 rounded-md bg-black/90 text-white">
           <p className="text-gray-300">{currentText.aboutMe}</p>
         </div>
       </div>
 
       {/* Experience Section */}
-      <div id="experience" className="max-w-2xl w-full z-10">
+      <div
+        id="experience"
+        className={`w-full z-10 ${
+          !isMobile ? "max-w-4xl" : "max-w-2xl"
+        }`}
+      >
         <h2 className="text-2xl font-semibold mb-4 text-center text-white">
           {currentText.experience}
         </h2>
         <div className="flex flex-col gap-4">
           {/* Example Experience Entry */}
-          <div className="border p-4 rounded-md bg-black/90 text-white"> {/* Changed to black/90 */}
+          <div className="border p-4 rounded-md bg-black/90 text-white">
             <h3 className="font-semibold">None</h3>
             <p className="mt-2">{currentText.experienceNone}</p>
           </div>
@@ -410,7 +433,12 @@ export default function Home() {
         </div>
       </div>
       {/* Skills Section */}
-      <div id="skills" className="max-w-2xl w-full z-10">
+      <div
+        id="skills"
+        className={`w-full z-10 ${
+          !isMobile ? "max-w-4xl" : "max-w-2xl"
+        }`}
+      >
         <h2 className="text-2xl font-semibold mb-4 text-center text-white">
           {currentText.skills}
         </h2>
@@ -426,13 +454,16 @@ export default function Home() {
         </div>
       </div>
       {/* Projects Section */}
-      <div id="projects" className="max-w-2xl w-full z-10">
+      <div
+        id="projects"
+        className={`w-full z-10 ${!isMobile ? "max-w-4xl" : "max-w-2xl"}`}
+      >
         <h2 className="text-2xl font-semibold mb-4 text-center text-white">
           {currentText.projects}
         </h2>
         <div className="flex flex-col gap-4">
           {/* Example Project Entry 1 */}
-          <div className="border p-4 rounded-md bg-black/90 text-white"> {/* Changed to black/90 */}
+          <div className="border p-4 rounded-md bg-black/90 text-white">
             <h3 className="font-semibold">{currentText.project1Title}</h3>
             <div className="h-2"></div>
             <div className="text-gray-300">
@@ -440,19 +471,21 @@ export default function Home() {
               <p>{currentText.project1Desc2}</p>
               <p>{currentText.project1Desc3}</p>
             </div>
+            <div className="h-4"></div> {/* Added space */}
             <div className="mt-2 flex gap-2">
               <a
                 href="https://github.com/FuzzyLaDuzzy/SOTP-2024"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-500 hover:underline"
               >
-                {currentText.githubRepo}
+                <button className="bg-black text-white border-2 border-white px-4 py-2 rounded-md hover:bg-gray-600">
+                  {currentText.githubRepo}
+                </button>
               </a>
             </div>
           </div>
           {/* Example Project Entry 2 */}
-          <div className="border p-4 rounded-md bg-black/90 text-white"> {/* Changed to black/90 */}
+          <div className="border p-4 rounded-md bg-black/90 text-white">
             <h3 className="font-semibold">{currentText.project2Title}</h3>
             <div className="h-2"></div>
             <div className="text-gray-300">
@@ -460,14 +493,16 @@ export default function Home() {
               <p>{currentText.project2Desc2}</p>
               <p>{currentText.project2Desc3}</p>
             </div>
+            <div className="h-4"></div> {/* Added space */}
             <div className="mt-2 flex gap-2">
               <a
                 href="https://github.com/josevasconcelos2002/LI3-project"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-500 hover:underline"
               >
-                {currentText.githubRepo}
+                <button className="bg-black text-white border-2 border-white px-4 py-2 rounded-md hover:bg-gray-600">
+                  {currentText.githubRepo}
+                </button>
               </a>
             </div>
           </div>
@@ -475,19 +510,25 @@ export default function Home() {
         </div>
       </div>
 
+
       {/* Education Section */}
-      <div id="education" className="max-w-2xl w-full z-10">
+      <div
+        id="education"
+        className={`w-full z-10 ${
+          !isMobile ? "max-w-4xl" : "max-w-2xl"
+        }`}
+      >
         <h2 className="text-2xl font-semibold mb-4 text-center text-white">
           {currentText.education}
         </h2>
         <div className="flex flex-col gap-4">
           {/* Example Education Entry */}
-          <div className="border p-4 rounded-md bg-black/90 text-white"> {/* Changed to black/90 */}
+          <div className="border p-4 rounded-md bg-black/90 text-white">
             <h3 className="font-semibold">{currentText.bachelors}</h3>
             <p className="text-gray-300">[2020] - [2024]</p>
           </div>
           {/* Add more education entries here */}
-          <div className="border p-4 rounded-md bg-black/90 text-white"> {/* Changed to black/90 */}
+          <div className="border p-4 rounded-md bg-black/90 text-white">
             <h3 className="font-semibold">{currentText.masters}</h3>
             <p className="text-gray-300">[2024] - [Current]</p>
           </div>
@@ -495,7 +536,12 @@ export default function Home() {
       </div>
       {/* Contacts Section */}
       {/* Contacts Section */}
-      <div id="contacts" className="max-w-2xl w-full z-10">
+      <div
+        id="contacts"
+        className={`w-full z-10 ${
+          !isMobile ? "max-w-4xl" : "max-w-2xl"
+        }`}
+      >
         <h2 className="text-2xl font-semibold mb-4 text-center text-white">
           {currentText.contacts}
         </h2>
