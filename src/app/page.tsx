@@ -176,7 +176,7 @@ export default function Home() {
   const skillButtonStyle = (isTouch: boolean) => {
     return `bg-black text-white border-3 border-white px-4 py-2 rounded-full ${
       isTouch ? "active:bg-gray-600" : "hover:bg-gray-600"
-    }`;
+    } flex items-center gap-2`;
   };
 
   useEffect(() => {
@@ -207,6 +207,16 @@ export default function Home() {
     }
     setMenuOpen(false);
   };
+
+  const skills = [
+    { name: "C", image: "/C.png", link: "https://en.wikipedia.org/wiki/C_(programming_language)" },
+    { name: "Haskell", image: "/haskell.png", link: "https://www.haskell.org/" },
+    { name: "JavaScript", image: "/javascript.png", link: "https://developer.mozilla.org/en-US/docs/Web/JavaScript" },
+    { name: "SQL", image: "/sql.svg", link: "https://en.wikipedia.org/wiki/SQL" },
+    { name: "Python", image: "/python.png", link: "https://www.python.org/" },
+    { name: "Vue.js", image: "/vue.png", link: "https://vuejs.org/" },
+  ];
+  
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-8 gap-8 font-sans relative overflow-hidden">
@@ -451,15 +461,20 @@ export default function Home() {
           {currentText.skills}
         </h2>
         <div className="flex flex-wrap gap-4 justify-center">
-          {/* Example Skill */}
-          <div className={skillButtonStyle(isTouch)}>C</div>
-          <div className={skillButtonStyle(isTouch)}>Haskell</div>
-          <div className={skillButtonStyle(isTouch)}>JavaScript</div>
-          <div className={skillButtonStyle(isTouch)}>SQL</div>
-          <div className={skillButtonStyle(isTouch)}>Python</div>
-          <div className={skillButtonStyle(isTouch)}>HTML/CSS</div>
-          {/* Add more skills here */}
-        </div>
+        {skills.map((skill) => (
+          <a key={skill.name} href={skill.link} target="_blank" rel="noopener noreferrer">
+            <div className={skillButtonStyle(isTouch)}>
+              <Image
+                src={skill.image}
+                alt={skill.name}
+                width={24}
+                height={24}
+              />
+              <span>{skill.name}</span>
+            </div>
+          </a>
+        ))}
+      </div>
       </div>
       {/* Projects Section */}
       <div
@@ -564,7 +579,6 @@ export default function Home() {
         </div>
       </div>
       {/* Contacts Section */}
-      {/* Contacts Section */}
       <div
         id="contacts"
         className={`w-full z-10 ${
@@ -576,67 +590,82 @@ export default function Home() {
         </h2>
         <div className="flex flex-col gap-4">
           {/* Email */}
-          <div className="border p-4 rounded-md bg-black/90 text-white">
-            <h3 className="font-semibold">{currentText.email}</h3>
-            <p className="text-gray-300">
-              <a
-                href={`mailto:${currentText.emailAddress}`}
-                className="text-blue-500 hover:underline"
-              >
-                {currentText.emailAddress}
-              </a>
-            </p>
+          <div className="border p-4 rounded-md bg-black/90 text-white flex items-center gap-4">
+            <Image src="/email.png" alt="Email" width={24} height={24} />
+            <div>
+              <h3 className="font-semibold">{currentText.email}</h3>
+              <p className="text-gray-300">
+                <a
+                  href={`mailto:${currentText.emailAddress}`}
+                  className="text-blue-500 hover:underline"
+                >
+                  {currentText.emailAddress}
+                </a>
+              </p>
+            </div>
           </div>
 
           {/* Discord */}
-          <div className="border p-4 rounded-md bg-black/90 text-white">
-            <h3 className="font-semibold">{currentText.discord}</h3>
-            <p className="text-gray-300">{currentText.discordusername}</p>
+          <div className="border p-4 rounded-md bg-black/90 text-white flex items-center gap-4">
+            <Image src="/discord.png" alt="Discord" width={24} height={24} />
+            <div>
+              <h3 className="font-semibold">{currentText.discord}</h3>
+              <p className="text-gray-300">{currentText.discordusername}</p>
+            </div>
           </div>
 
           {/* GitHub */}
-          <div className="border p-4 rounded-md bg-black/90 text-white">
-            <h3 className="font-semibold">GitHub</h3>
-            <p className="text-gray-300">
-              <a
-                href={currentText.githubLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:underline"
-              >
-                {currentText.githubUsername}
-              </a>
-            </p>
+          <div className="border p-4 rounded-md bg-black/90 text-white flex items-center gap-4">
+            <Image src="/github.png" alt="GitHub" width={24} height={24} />
+            <div>
+              <h3 className="font-semibold">GitHub</h3>
+              <p className="text-gray-300">
+                <a
+                  href={currentText.githubLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:underline"
+                >
+                  {currentText.githubUsername}
+                </a>
+              </p>
+            </div>
           </div>
 
           {/* LinkedIn */}
-          <div className="border p-4 rounded-md bg-black/90 text-white">
-            <h3 className="font-semibold">LinkedIn</h3>
-            <p className="text-gray-300">
-              <a
-                href={currentText.linkedinLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:underline"
-              >
-                {currentText.linkedinUsername}
-              </a>
-            </p>
+          <div className="border p-4 rounded-md bg-black/90 text-white flex items-center gap-4">
+            <Image src="/linkedin2.png" alt="LinkedIn" width={24} height={24} />
+            <div>
+              <h3 className="font-semibold">LinkedIn</h3>
+              <p className="text-gray-300">
+                <a
+                  href={currentText.linkedinLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:underline"
+                >
+                  {currentText.linkedinUsername}
+                </a>
+              </p>
+            </div>
           </div>
 
           {/* Instagram */}
-          <div className="border p-4 rounded-md bg-black/90 text-white">
-            <h3 className="font-semibold">Instagram</h3>
-            <p className="text-gray-300">
-              <a
-                href={currentText.instagramLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:underline"
-              >
-                {currentText.instagramUsername}
-              </a>
-            </p>
+          <div className="border p-4 rounded-md bg-black/90 text-white flex items-center gap-4">
+            <Image src="/insta.png" alt="Instagram" width={24} height={24} />
+            <div>
+              <h3 className="font-semibold">Instagram</h3>
+              <p className="text-gray-300">
+                <a
+                  href={currentText.instagramLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:underline"
+                >
+                  {currentText.instagramUsername}
+                </a>
+              </p>
+            </div>
           </div>
         </div>
       </div>
