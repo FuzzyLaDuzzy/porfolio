@@ -81,10 +81,14 @@ export default function Home() {
         "The Storing and organization of the data is make with the use of HashTables and Structs.",
       project2Desc3:
         "Includes an interface that displays the info about each query given.",
+      project3Title: "PictuRAS | Vue.js",
+      project3Desc1: "A scalable web application designed to manage, edit, and showcase images effectively.",
+      project3Desc2: "Includes a frontend for user interaction, an API for backend services, and integrated email management with Mailhog.",
+      project3Desc3: "Users can apply various tools and filters to edit images directly within the application. The project is deployed using Kubernetes, leveraging tools like Minikube and Helm for orchestration and package management.",
       githubRepo: "See Code",
       education: "Education",
-      bachelors: "[Bachelor's Degree] - [University of Minho]",
-      masters: "[Master's Degree] - [University of Minho]",
+      bachelors: "[Bachelor's Degree in Software Engineering] - [University of Minho]",
+      masters: "[Master's Degree in Software Engineering] - [University of Minho]",
       copyright: "© 2025 Flávio Silva. All rights reserved.",
       discordName: "fuzzymind",
       contacts: "Contacts",
@@ -123,10 +127,14 @@ export default function Home() {
         "O Armazenamento e organização dos dados são feitos com o uso de HashTables e Structs.",
       project2Desc3:
         "Inclui uma interface que exibe as informações sobre cada consulta fornecida.",
+      project3Title: "PictuRAS | Vue.js",
+      project3Desc1: "Uma aplicação web escalável projetada para gerir, editar e exibir imagens de forma eficaz.",
+      project3Desc2: "Inclui um frontend para interação do utilizador, uma API para serviços de backend e gestão de email integrada com Mailhog.",
+      project3Desc3: "Os utilizadores podem aplicar várias ferramentas e filtros para editar imagens diretamente na aplicação. O projeto é implementado usando Kubernetes, aproveitando ferramentas como Minikube e Helm para orquestração e gestão de pacotes.",
       githubRepo: "Repositório GitHub",
       education: "Educação",
-      bachelors: "[Licenciatura] - [Universidade do Minho]",
-      masters: "[Mestrado] - [Universidade do Minho]",
+      bachelors: "[Licenciatura em Engenharia Informática] - [Universidade do Minho]",
+      masters: "[Mestrado em Engenharia Informática] - [Universidade do Minho]",
       copyright: "© 2025 Flávio Silva. Todos os direitos reservados.",
       discordName: "fuzzymind",
       contacts: "Contactos",
@@ -472,19 +480,40 @@ export default function Home() {
               <p>{currentText.project1Desc3}</p>
             </div>
             <div className="h-4"></div> {/* Added space */}
-            <div className="mt-2 flex gap-2">
+            <div className={`mt-2 flex ${isMobile ? 'justify-center' : 'gap-2'}`}>
               <a
                 href="https://github.com/FuzzyLaDuzzy/SOTP-2024"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <button className="bg-black text-white border-2 border-white px-4 py-2 rounded-md hover:bg-gray-600">
+                <button className={`bg-black text-white border-2 border-white px-4 py-2 rounded-md hover:bg-gray-600 ${isMobile ? 'px-8 py-3 text-lg' : ''}`}>
                   {currentText.githubRepo}
                 </button>
               </a>
             </div>
           </div>
           {/* Example Project Entry 2 */}
+          <div className="border p-4 rounded-md bg-black/90 text-white">
+            <h3 className="font-semibold">{currentText.project3Title}</h3>
+            <div className="h-2"></div>
+            <div className="text-gray-300">
+              <p>{currentText.project3Desc1}</p>
+              <p>{currentText.project3Desc2}</p>
+              <p>{currentText.project3Desc3}</p>
+            </div>
+            <div className="h-4"></div> {/* Added space */}
+            <div className={`mt-2 flex ${isMobile ? 'justify-center' : 'gap-2'}`}>
+              <a
+                href="https://github.com/JoaoCoelho2003/PictuRas"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <button className={`bg-black text-white border-2 border-white px-4 py-2 rounded-md hover:bg-gray-600 ${isMobile ? 'px-8 py-3 text-lg' : ''}`}>
+                  {currentText.githubRepo}
+                </button>
+              </a>
+            </div>
+          </div>
           <div className="border p-4 rounded-md bg-black/90 text-white">
             <h3 className="font-semibold">{currentText.project2Title}</h3>
             <div className="h-2"></div>
@@ -494,13 +523,13 @@ export default function Home() {
               <p>{currentText.project2Desc3}</p>
             </div>
             <div className="h-4"></div> {/* Added space */}
-            <div className="mt-2 flex gap-2">
+            <div className={`mt-2 flex ${isMobile ? 'justify-center' : 'gap-2'}`}>
               <a
                 href="https://github.com/josevasconcelos2002/LI3-project"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <button className="bg-black text-white border-2 border-white px-4 py-2 rounded-md hover:bg-gray-600">
+                <button className={`bg-black text-white border-2 border-white px-4 py-2 rounded-md hover:bg-gray-600 ${isMobile ? 'px-8 py-3 text-lg' : ''}`}>
                   {currentText.githubRepo}
                 </button>
               </a>
@@ -610,6 +639,10 @@ export default function Home() {
             </p>
           </div>
         </div>
+      </div>
+      {/* Copyright */}
+      <div className="w-full text-center mt-8 text-gray-300 z-10">
+        <p>{currentText.copyright}</p>
       </div>
     </div>
   );
