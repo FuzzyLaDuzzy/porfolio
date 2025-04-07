@@ -174,7 +174,7 @@ export default function Home() {
   };
 
   const skillButtonStyle = (isTouch: boolean) => {
-    return `bg-black text-white border-3 border-white px-4 py-2 rounded-full ${
+    return `bg-black text-white border-3 border-white px-4 py-2 rounded-full transition-colors duration-200 ${
       isTouch ? "active:bg-gray-600" : "hover:bg-gray-600"
     } flex items-center gap-2`;
   };
@@ -242,7 +242,7 @@ export default function Home() {
       <div className="absolute top-4 left-4 z-20">
         <button
           onClick={toggleMenu}
-          className="bg-black text-white border-2 border-white px-4 py-2 rounded-md"
+          className="bg-black text-white border-2 border-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors duration-200"
         >
           ☰
         </button>
@@ -251,7 +251,7 @@ export default function Home() {
           <div className="fixed top-0 left-0 w-full h-full bg-black/90 text-white flex flex-col items-center justify-center z-30">
             <button
               onClick={toggleMenu}
-              className="absolute top-4 right-4 bg-white text-black px-4 py-2 rounded-md"
+              className="absolute top-4 right-4 bg-white text-black px-4 py-2 rounded-md transition-colors duration-200"
             >
               ✕
             </button>
@@ -288,7 +288,7 @@ export default function Home() {
                       toggleLanguage();
                       toggleMenu();
                     }}
-                    className="bg-white text-black px-4 py-2 rounded-md"
+                    className="bg-white text-black px-4 py-2 rounded-md transition-colors duration-200"
                   >
                     {isPortuguese ? "English" : "Português"}
                   </button>
@@ -304,7 +304,7 @@ export default function Home() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: -10 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="absolute top-16 left-4 bg-black/90 text-white rounded-lg shadow-xl z-30 p-6 min-w-[220px]"
+            className="absolute top-16 left-4 bg-black/90 text-white rounded-lg shadow-xl z-50 p-8 min-w-[250px]"
           >
             <ul className="flex flex-col gap-3">
               <li className="text-lg hover:underline">
@@ -338,7 +338,7 @@ export default function Home() {
                     toggleLanguage();
                     toggleMenu();
                   }}
-                  className="bg-white text-black px-5 py-3 rounded-lg text-lg hover:bg-gray-200"
+                  className="bg-white text-black px-5 py-3 rounded-lg text-lg hover:bg-gray-200 transition-colors duration-200"
                 >
                   {isPortuguese ? "English" : "Português"}
                 </button>
@@ -353,7 +353,7 @@ export default function Home() {
         <div className="absolute top-4 right-4 z-10">
           <button
             onClick={toggleLanguage}
-            className="bg-black text-white border-2 border-white px-6 py-3 rounded-md hover:bg-gray-600"
+            className="bg-black text-white border-2 border-white px-6 py-3 rounded-md hover:bg-gray-600 transition-colors duration-200"
           >
             {isPortuguese ? "English" : "Português"}
           </button>
@@ -363,7 +363,7 @@ export default function Home() {
       {/* Profile Section */}
       <div className="profile-image-container w-64 h-80 sm:w-80 sm:h-100 overflow-hidden shadow-lg relative rounded-full z-10">
         <Image
-          src="/profile.png"
+          src="/profile2.jpeg"
           alt={currentText.name}
           width={1100}
           height={1200}
@@ -385,7 +385,7 @@ export default function Home() {
           href="/cv.pdf"
           target="_blank"
           rel="noopener noreferrer"
-          className="bg-black text-white border-2 border-white px-6 py-3 rounded-md hover:bg-gray-600"
+          className="bg-black text-white border-2 border-white px-6 py-3 rounded-md hover:bg-gray-600 transition-colors duration-200"
         >
           {currentText.downloadResume}
         </a>
@@ -501,7 +501,7 @@ export default function Home() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <button className={`bg-black text-white border-2 border-white px-4 py-2 rounded-md hover:bg-gray-600 ${isMobile ? 'px-8 py-3 text-lg' : ''}`}>
+                <button className={`bg-black text-white border-2 border-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors duration-200 ${isMobile ? 'px-8 py-3 text-lg' : ''}`}>
                   {currentText.githubRepo}
                 </button>
               </a>
@@ -523,7 +523,7 @@ export default function Home() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <button className={`bg-black text-white border-2 border-white px-4 py-2 rounded-md hover:bg-gray-600 ${isMobile ? 'px-8 py-3 text-lg' : ''}`}>
+                <button className={`bg-black text-white border-2 border-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors duration-200 ${isMobile ? 'px-8 py-3 text-lg' : ''}`}>
                   {currentText.githubRepo}
                 </button>
               </a>
@@ -544,7 +544,7 @@ export default function Home() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <button className={`bg-black text-white border-2 border-white px-4 py-2 rounded-md hover:bg-gray-600 ${isMobile ? 'px-8 py-3 text-lg' : ''}`}>
+                <button className={`bg-black text-white border-2 border-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors duration-200 ${isMobile ? 'px-8 py-3 text-lg' : ''}`}>
                   {currentText.githubRepo}
                 </button>
               </a>
