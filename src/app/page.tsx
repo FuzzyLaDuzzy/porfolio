@@ -649,24 +649,6 @@ export default function Home() {
               </p>
             </div>
           </div>
-
-          {/* Instagram */}
-          <div className="border p-4 rounded-md bg-black/90 text-white flex items-center gap-4">
-            <Image src="/insta.png" alt="Instagram" width={24} height={24} />
-            <div>
-              <h3 className="font-semibold">Instagram</h3>
-              <p className="text-gray-300">
-                <a
-                  href={currentText.instagramLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline"
-                >
-                  {currentText.instagramUsername}
-                </a>
-              </p>
-            </div>
-          </div>
         </div>
       </div>
       {/* Copyright */}
