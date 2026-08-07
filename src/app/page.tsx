@@ -124,6 +124,10 @@ export default function Home() {
       project3Desc1: "A scalable web application designed to manage, edit, and showcase images effectively.",
       project3Desc2: "Includes a frontend for user interaction, an API for backend services, and integrated email management with Mailhog.",
       project3Desc3: "Users can apply various tools and filters to edit images directly within the application. The project is deployed using Kubernetes, leveraging tools like Minikube and Helm for orchestration and package management.",
+      project4Title: "F3M | Medication Care App",
+      project4Desc1: "A mobile app built for a university course project to help patients with mild to moderate dementia manage their medication.",
+      project4Desc2: "Includes a caregiver support system so family members or caregivers can track and help with medication schedules.",
+      project4Desc3: "Built with a React Native (Expo) frontend, a Node.js/Express/TypeScript backend, and a PostgreSQL database managed with Prisma.",
       githubRepo: "See Code",
       education: "Education",
       bachelors: "[Bachelor's Degree in Software Engineering] - [University of Minho]",
@@ -170,6 +174,10 @@ export default function Home() {
       project3Desc1: "Uma aplicação web escalável projetada para gerir, editar e exibir imagens de forma eficaz.",
       project3Desc2: "Inclui um frontend para interação do utilizador, uma API para serviços de backend e gestão de email integrada com Mailhog.",
       project3Desc3: "Os utilizadores podem aplicar várias ferramentas e filtros para editar imagens diretamente na aplicação. O projeto é implementado usando Kubernetes, aproveitando ferramentas como Minikube e Helm para orquestração e gestão de pacotes.",
+      project4Title: "F3M | App de Gestão de Medicação",
+      project4Desc1: "Uma aplicação móvel desenvolvida no âmbito de um projeto universitário para ajudar pacientes com demência leve a moderada a gerir a sua medicação.",
+      project4Desc2: "Inclui um sistema de suporte para cuidadores, permitindo que familiares acompanhem e ajudem na gestão dos horários de medicação.",
+      project4Desc3: "Construída com um frontend em React Native (Expo), backend em Node.js/Express/TypeScript e base de dados PostgreSQL gerida com Prisma.",
       githubRepo: "Repositório GitHub",
       education: "Educação",
       bachelors: "[Licenciatura em Engenharia Informática] - [Universidade do Minho]",
@@ -254,6 +262,37 @@ export default function Home() {
     { name: "SQL", image: "/sql.svg", link: "https://en.wikipedia.org/wiki/SQL" },
     { name: "Python", image: "/python.png", link: "https://www.python.org/" },
     { name: "Vue.js", image: "/vue.png", link: "https://vuejs.org/" },
+  ];
+
+  const projects = [
+    {
+      title: currentText.project1Title,
+      desc: [currentText.project1Desc1, currentText.project1Desc2, currentText.project1Desc3],
+      tech: "C",
+      techIcon: "/C.png",
+      github: "https://github.com/FuzzyLaDuzzy/SOTP-2024",
+    },
+    {
+      title: currentText.project3Title,
+      desc: [currentText.project3Desc1, currentText.project3Desc2, currentText.project3Desc3],
+      tech: "Vue.js",
+      techIcon: "/vue.png",
+      github: "https://github.com/JoaoCoelho2003/PictuRas",
+    },
+    {
+      title: currentText.project2Title,
+      desc: [currentText.project2Desc1, currentText.project2Desc2, currentText.project2Desc3],
+      tech: "C",
+      techIcon: "/C.png",
+      github: "https://github.com/josevasconcelos2002/LI3-project",
+    },
+    {
+      title: currentText.project4Title,
+      desc: [currentText.project4Desc1, currentText.project4Desc2, currentText.project4Desc3],
+      tech: "React Native",
+      techIcon: "/javascript.png",
+      github: "https://github.com/MartimRedondo/F3M_APP",
+    },
   ];
 
   const navItems: { id: string; label: string }[] = [
@@ -586,7 +625,7 @@ export default function Home() {
         whileInView="visible"
         viewport={{ once: true, amount: 0.3 }}
         variants={fadeInUp}
-        className={`w-full z-10 ${!isMobile ? "max-w-4xl" : "max-w-2xl"}`}
+        className={`w-full z-10 ${!isMobile ? "max-w-5xl" : "max-w-2xl"}`}
       >
         <SectionHeading title={currentText.projects} />
         <motion.div
@@ -594,85 +633,52 @@ export default function Home() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
-          className="flex flex-col gap-4"
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch"
         >
-          {/* Project Entry 1 */}
-          <motion.div variants={staggerItem} whileHover={{ y: -4 }} className={cardClass}>
-            <h3 className="font-semibold">{currentText.project1Title}</h3>
-            <div className="h-2"></div>
-            <div className="text-gray-300">
-              <p>{currentText.project1Desc1}</p>
-              <p>{currentText.project1Desc2}</p>
-              <p>{currentText.project1Desc3}</p>
-            </div>
-            <div className="h-4"></div>
-            <div className={`mt-2 flex ${isMobile ? "justify-center" : "gap-2"}`}>
-              <motion.a
-                href="https://github.com/FuzzyLaDuzzy/SOTP-2024"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={`inline-block px-4 py-2 ${primaryButtonClass} rounded-md ${
-                  isMobile ? "px-8 py-3 text-lg" : ""
-                }`}
-              >
-                {currentText.githubRepo}
-              </motion.a>
-            </div>
-          </motion.div>
-
-          {/* Project Entry 2 */}
-          <motion.div variants={staggerItem} whileHover={{ y: -4 }} className={cardClass}>
-            <h3 className="font-semibold">{currentText.project3Title}</h3>
-            <div className="h-2"></div>
-            <div className="text-gray-300">
-              <p>{currentText.project3Desc1}</p>
-              <p>{currentText.project3Desc2}</p>
-              <p>{currentText.project3Desc3}</p>
-            </div>
-            <div className="h-4"></div>
-            <div className={`mt-2 flex ${isMobile ? "justify-center" : "gap-2"}`}>
-              <motion.a
-                href="https://github.com/JoaoCoelho2003/PictuRas"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={`inline-block px-4 py-2 ${primaryButtonClass} rounded-md ${
-                  isMobile ? "px-8 py-3 text-lg" : ""
-                }`}
-              >
-                {currentText.githubRepo}
-              </motion.a>
-            </div>
-          </motion.div>
-
-          {/* Project Entry 3 */}
-          <motion.div variants={staggerItem} whileHover={{ y: -4 }} className={cardClass}>
-            <h3 className="font-semibold">{currentText.project2Title}</h3>
-            <div className="h-2"></div>
-            <div className="text-gray-300">
-              <p>{currentText.project2Desc1}</p>
-              <p>{currentText.project2Desc2}</p>
-              <p>{currentText.project2Desc3}</p>
-            </div>
-            <div className="h-4"></div>
-            <div className={`mt-2 flex ${isMobile ? "justify-center" : "gap-2"}`}>
-              <motion.a
-                href="https://github.com/josevasconcelos2002/LI3-project"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={`inline-block px-4 py-2 ${primaryButtonClass} rounded-md ${
-                  isMobile ? "px-8 py-3 text-lg" : ""
-                }`}
-              >
-                {currentText.githubRepo}
-              </motion.a>
-            </div>
-          </motion.div>
+          {projects.map((project, index) => (
+            <motion.div
+              key={project.title}
+              variants={staggerItem}
+              whileHover={{ y: -6 }}
+              className={`${cardClass} flex flex-col justify-between`}
+            >
+              <div>
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-xs font-mono text-white/40">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <h3 className="font-semibold text-lg leading-snug">{project.title}</h3>
+                  </div>
+                  <span className="shrink-0 flex items-center gap-1.5 text-xs uppercase tracking-wide bg-white/5 border border-white/15 text-gray-300 px-2.5 py-1 rounded-full">
+                    <Image src={project.techIcon} alt={project.tech} width={12} height={12} />
+                    {project.tech}
+                  </span>
+                </div>
+                <div className="w-full h-px bg-white/10 mb-3" />
+                <div className="text-gray-300 text-sm leading-relaxed space-y-2">
+                  {project.desc.map((line, i) => (
+                    <p key={i}>{line}</p>
+                  ))}
+                </div>
+              </div>
+              <div className={`mt-6 flex ${isMobile ? "justify-center" : ""}`}>
+                <motion.a
+                  href={project.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`inline-flex items-center gap-2 px-4 py-2 text-sm ${primaryButtonClass} rounded-md ${
+                    isMobile ? "px-8 py-3 text-base" : ""
+                  }`}
+                >
+                  <Image src="/github.png" alt="" width={14} height={14} className="opacity-80" />
+                  {currentText.githubRepo}
+                </motion.a>
+              </div>
+            </motion.div>
+          ))}
         </motion.div>
       </motion.div>
 
