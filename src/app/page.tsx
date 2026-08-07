@@ -1,8 +1,54 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
+
+const fadeInUp: Variants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.7, ease: "easeOut" },
+  },
+};
+
+const staggerContainer: Variants = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.12, delayChildren: 0.1 },
+  },
+};
+
+const staggerItem: Variants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: "easeOut" },
+  },
+};
+
+const primaryButtonClass =
+  "bg-black/80 text-white border border-white/30 rounded-full backdrop-blur-sm transition-colors duration-300 hover:bg-white hover:text-black";
+
+const cardClass =
+  "border border-white/10 p-5 rounded-xl bg-black/70 backdrop-blur-sm text-white shadow-lg transition-all duration-300 hover:border-white/30 hover:shadow-2xl hover:shadow-black/40";
+
+function SectionHeading({ title }: { title: string }) {
+  return (
+    <div className="flex flex-col items-center mb-6">
+      <h2 className="text-2xl font-semibold text-white">{title}</h2>
+      <motion.span
+        initial={{ width: 0 }}
+        whileInView={{ width: 48 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
+        className="h-0.5 bg-white/70 mt-2 rounded-full"
+      />
+    </div>
+  );
+}
 
 export default function Home() {
   const [isPortuguese, setIsPortuguese] = useState(false);
@@ -24,18 +70,11 @@ export default function Home() {
         clearInterval(interval);
         setTimeout(() => {
           setCurrentTitleIndex((prevIndex) => (prevIndex + 1) % titles.length);
-        }, 6000); // Pause for 3 seconds before starting the next title
+        }, 6000); // Pause for 6 seconds before starting the next title
       }
-    }, 100); // Change each letter every 150ms
+    }, 100); // Change each letter every 100ms
     return () => clearInterval(interval);
   }, [currentTitleIndex]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTitleIndex((prevIndex) => (prevIndex + 1) % titles.length);
-    }, 6000); // Change title every 3 seconds
-    return () => clearInterval(interval);
-  }, []);
 
   const toggleLanguage = () => {
     setIsPortuguese(!isPortuguese);
@@ -45,7 +84,7 @@ export default function Home() {
     setMenuOpen(!menuOpen);
   };
 
-  const nameVariants = {
+  const nameVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
@@ -174,12 +213,12 @@ export default function Home() {
   };
 
   const skillButtonStyle = (isTouch: boolean) => {
-    return `bg-black text-white border-3 border-white px-4 py-2 rounded-full transition-colors duration-200 ${
-      isTouch ? "active:bg-gray-600" : "hover:bg-gray-600"
+    return `bg-black/80 text-white border border-white/30 px-4 py-2 rounded-full backdrop-blur-sm transition-colors duration-300 ${
+      isTouch ? "active:bg-white active:text-black" : "hover:bg-white hover:text-black"
     } flex items-center gap-2`;
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setIsTouch(isTouchDevice());
     setIsMobile(isMobileDevice());
 
@@ -216,7 +255,14 @@ export default function Home() {
     { name: "Python", image: "/python.png", link: "https://www.python.org/" },
     { name: "Vue.js", image: "/vue.png", link: "https://vuejs.org/" },
   ];
-  
+
+  const navItems: { id: string; label: string }[] = [
+    { id: "experience", label: currentText.experience },
+    { id: "skills", label: currentText.skills },
+    { id: "projects", label: currentText.projects },
+    { id: "education", label: currentText.education },
+    { id: "contacts", label: currentText.contacts },
+  ];
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-8 gap-8 font-sans relative overflow-hidden">
@@ -240,136 +286,153 @@ export default function Home() {
 
       {/* Hamburger Menu for All Devices */}
       <div className="absolute top-4 left-4 z-20">
-        <button
+        <motion.button
           onClick={toggleMenu}
-          className="bg-black text-white border-2 border-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors duration-200"
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.92 }}
+          className={`px-4 py-2 rounded-md text-lg ${primaryButtonClass}`}
         >
-          ☰
-        </button>
-        {/* Mobile Menu */}
-        {menuOpen && isMobile && (
-          <div className="fixed top-0 left-0 w-full h-full bg-black/90 text-white flex flex-col items-center justify-center z-30">
-            <button
-              onClick={toggleMenu}
-              className="absolute top-4 right-4 bg-white text-black px-4 py-2 rounded-md transition-colors duration-200"
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.span
+              key={menuOpen ? "close" : "open"}
+              initial={{ opacity: 0, rotate: -45 }}
+              animate={{ opacity: 1, rotate: 0 }}
+              exit={{ opacity: 0, rotate: 45 }}
+              transition={{ duration: 0.2 }}
+              className="inline-block"
             >
-              ✕
-            </button>
-            <ul className="flex flex-col gap-4 text-center">
-              <li className="text-xl">
-                <button onClick={() => scrollToSection("experience")}>
-                  {currentText.experience}
-                </button>
-              </li>
-              <li className="text-xl">
-                <button onClick={() => scrollToSection("skills")}>
-                  {currentText.skills}
-                </button>
-              </li>
-              <li className="text-xl">
-                <button onClick={() => scrollToSection("projects")}>
-                  {currentText.projects}
-                </button>
-              </li>
-              <li className="text-xl">
-                <button onClick={() => scrollToSection("education")}>
-                  {currentText.education}
-                </button>
-              </li>
-              <li className="text-xl">
-                <button onClick={() => scrollToSection("contacts")}>
-                  {currentText.contacts}
-                </button>
-              </li>
-              {isMobile && (
-                <li className="text-xl">
-                  <button
+              {menuOpen ? "✕" : "☰"}
+            </motion.span>
+          </AnimatePresence>
+        </motion.button>
+
+        <AnimatePresence>
+          {/* Mobile Menu */}
+          {menuOpen && isMobile && (
+            <motion.div
+              key="mobile-menu"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="fixed top-0 left-0 w-full h-full bg-black/90 text-white flex flex-col items-center justify-center z-30"
+            >
+              <motion.button
+                onClick={toggleMenu}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="absolute top-4 right-4 bg-white text-black px-4 py-2 rounded-md transition-colors duration-200"
+              >
+                ✕
+              </motion.button>
+              <motion.ul
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+                className="flex flex-col gap-6 text-center"
+              >
+                {navItems.map((item) => (
+                  <motion.li key={item.id} variants={staggerItem} className="text-xl">
+                    <button onClick={() => scrollToSection(item.id)}>{item.label}</button>
+                  </motion.li>
+                ))}
+                {isMobile && (
+                  <motion.li variants={staggerItem} className="text-xl">
+                    <button
+                      onClick={() => {
+                        toggleLanguage();
+                        toggleMenu();
+                      }}
+                      className="bg-white text-black px-4 py-2 rounded-md transition-colors duration-200"
+                    >
+                      {isPortuguese ? "English" : "Português"}
+                    </button>
+                  </motion.li>
+                )}
+              </motion.ul>
+            </motion.div>
+          )}
+
+          {/* Desktop Menu */}
+          {menuOpen && !isMobile && (
+            <motion.div
+              key="desktop-menu"
+              initial={{ opacity: 0, scale: 0.8, y: -10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, y: -10 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="absolute top-16 left-4 bg-black/90 text-white rounded-lg shadow-xl z-50 p-8 min-w-[250px]"
+            >
+              <motion.ul
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+                className="flex flex-col gap-3"
+              >
+                {navItems.map((item) => (
+                  <motion.li key={item.id} variants={staggerItem} className="text-lg group relative w-fit">
+                    <button onClick={() => scrollToSection(item.id)}>{item.label}</button>
+                    <span className="absolute left-0 -bottom-1 w-full h-0.5 bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+                  </motion.li>
+                ))}
+                <motion.li variants={staggerItem} className="text-lg">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => {
                       toggleLanguage();
                       toggleMenu();
                     }}
-                    className="bg-white text-black px-4 py-2 rounded-md transition-colors duration-200"
+                    className="bg-white text-black px-5 py-3 rounded-lg text-lg hover:bg-gray-200 transition-colors duration-200"
                   >
                     {isPortuguese ? "English" : "Português"}
-                  </button>
-                </li>
-              )}
-            </ul>
-          </div>
-        )}
-        {/* Desktop Menu */}
-        {menuOpen && !isMobile && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: -10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: -10 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-            className="absolute top-16 left-4 bg-black/90 text-white rounded-lg shadow-xl z-50 p-8 min-w-[250px]"
-          >
-            <ul className="flex flex-col gap-3">
-              <li className="text-lg hover:underline">
-                <button onClick={() => scrollToSection("experience")}>
-                  {currentText.experience}
-                </button>
-              </li>
-              <li className="text-lg hover:underline">
-                <button onClick={() => scrollToSection("skills")}>
-                  {currentText.skills}
-                </button>
-              </li>
-              <li className="text-lg hover:underline">
-                <button onClick={() => scrollToSection("projects")}>
-                  {currentText.projects}
-                </button>
-              </li>
-              <li className="text-lg hover:underline">
-                <button onClick={() => scrollToSection("education")}>
-                  {currentText.education}
-                </button>
-              </li>
-              <li className="text-lg hover:underline">
-                <button onClick={() => scrollToSection("contacts")}>
-                  {currentText.contacts}
-                </button>
-              </li>
-              <li className="text-lg">
-                <button
-                  onClick={() => {
-                    toggleLanguage();
-                    toggleMenu();
-                  }}
-                  className="bg-white text-black px-5 py-3 rounded-lg text-lg hover:bg-gray-200 transition-colors duration-200"
-                >
-                  {isPortuguese ? "English" : "Português"}
-                </button>
-              </li>
-            </ul>
-          </motion.div>
-        )}
+                  </motion.button>
+                </motion.li>
+              </motion.ul>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Language Toggle Button */}
       {!isMobile && (
         <div className="absolute top-4 right-4 z-10">
-          <button
+          <motion.button
             onClick={toggleLanguage}
-            className="bg-black text-white border-2 border-white px-6 py-3 rounded-md hover:bg-gray-600 transition-colors duration-200"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={`px-6 py-3 ${primaryButtonClass}`}
           >
             {isPortuguese ? "English" : "Português"}
-          </button>
+          </motion.button>
         </div>
       )}
 
       {/* Profile Section */}
-      <div className="profile-image-container w-64 h-80 sm:w-80 sm:h-100 overflow-hidden shadow-lg relative rounded-full z-10">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.85 }}
+        animate={{
+          opacity: 1,
+          scale: 1,
+          y: [0, -10, 0],
+        }}
+        transition={{
+          opacity: { duration: 0.8, ease: "easeOut" },
+          scale: { duration: 0.8, ease: "easeOut" },
+          y: { duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.8 },
+        }}
+        whileHover={{ scale: 1.04 }}
+        className="profile-image-container w-64 h-80 sm:w-80 sm:h-100 overflow-hidden shadow-lg relative rounded-full z-10 ring-2 ring-white/20 hover:ring-white/40 transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.12)]"
+      >
         <Image
-          src="/profile2.jpeg"
+          src="/profile4.jpg"
           alt={currentText.name}
-          width={1100}
-          height={1200}
+          width={988}
+          height={1123}
           className="object-cover w-full h-full"
+          priority
         />
-      </div>
+      </motion.div>
       {/* Animated Name */}
       <motion.h1
         className="text-4xl font-bold text-white z-10"
@@ -379,114 +442,162 @@ export default function Home() {
       >
         {currentText.name}
       </motion.h1>
-      <p className="text-lg text-gray-300 z-10">{displayedTitle}</p>
-      <div className="flex flex-col items-center gap-4 z-10">
-        <a
+      <p className="text-lg text-gray-300 z-10 min-h-[1.75rem]">
+        {displayedTitle}
+        <motion.span
+          animate={{ opacity: [1, 0, 1] }}
+          transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
+          className="inline-block w-[2px] h-5 bg-gray-300 ml-1 align-middle"
+        />
+      </p>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+        className="flex flex-col items-center gap-4 z-10"
+      >
+        <motion.a
           href="/cv.pdf"
           target="_blank"
           rel="noopener noreferrer"
-          className="bg-black text-white border-2 border-white px-6 py-3 rounded-md hover:bg-gray-600 transition-colors duration-200"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className={`px-6 py-3 ${primaryButtonClass}`}
         >
           {currentText.downloadResume}
-        </a>
-      </div>
-      <div className="flex gap-4 z-10">
-        <a
+        </motion.a>
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.45 }}
+        className="flex gap-4 z-10"
+      >
+        <motion.a
           href="https://github.com/FuzzyLaDuzzy"
           target="_blank"
           rel="noopener noreferrer"
+          whileHover={{ scale: 1.15, y: -2 }}
+          whileTap={{ scale: 0.9 }}
           className="hover:text-blue-500"
         >
           <Image src="/github.png" alt="GitHub" width={25} height={25} />
-        </a>
-        <a
+        </motion.a>
+        <motion.a
           href="https://www.instagram.com/flavios.silva.dmwm/"
           target="_blank"
           rel="noopener noreferrer"
+          whileHover={{ scale: 1.15, y: -2 }}
+          whileTap={{ scale: 0.9 }}
           className="hover:text-blue-500"
         >
-          <Image src="/insta.png" alt="Instagram" width={22} height={24} />
-        </a>
-        <a
+          <Image src="/insta.png" alt="Instagram" width={24} height={24} />
+        </motion.a>
+        <motion.a
           href="https://www.linkedin.com/in/flávio-alex-silva/"
           target="_blank"
           rel="noopener noreferrer"
+          whileHover={{ scale: 1.15, y: -2 }}
+          whileTap={{ scale: 0.9 }}
           className="hover:text-blue-500"
         >
           <Image src="/linkedin2.png" alt="LinkedIn" width={25} height={24} />
-        </a>
-      </div>
-      {/* Section Wrappers with Conditional Styling */}
-      <div
+        </motion.a>
+      </motion.div>
+      {/* About Section */}
+      <motion.div
         id="about"
-        className={`w-full z-10 ${
-          !isMobile ? "max-w-4xl" : "max-w-2xl"
-        }`}
-      >
-        <h2 className="text-2xl font-semibold mb-4 text-center text-white">
-          About Me
-        </h2>
-        <div className="border p-4 rounded-md bg-black/90 text-white">
-          <p className="text-gray-300">{currentText.aboutMe}</p>
-        </div>
-      </div>
-
-      {/* Experience Section */}
-      <div
-        id="experience"
-        className={`w-full z-10 ${
-          !isMobile ? "max-w-4xl" : "max-w-2xl"
-        }`}
-      >
-        <h2 className="text-2xl font-semibold mb-4 text-center text-white">
-          {currentText.experience}
-        </h2>
-        <div className="flex flex-col gap-4">
-          {/* Example Experience Entry */}
-          <div className="border p-4 rounded-md bg-black/90 text-white">
-            <h3 className="font-semibold">None</h3>
-            <p className="mt-2">{currentText.experienceNone}</p>
-          </div>
-          {/* Add more experience entries here */}
-        </div>
-      </div>
-      {/* Skills Section */}
-      <div
-        id="skills"
-        className={`w-full z-10 ${
-          !isMobile ? "max-w-4xl" : "max-w-2xl"
-        }`}
-      >
-        <h2 className="text-2xl font-semibold mb-4 text-center text-white">
-          {currentText.skills}
-        </h2>
-        <div className="flex flex-wrap gap-4 justify-center">
-        {skills.map((skill) => (
-          <a key={skill.name} href={skill.link} target="_blank" rel="noopener noreferrer">
-            <div className={skillButtonStyle(isTouch)}>
-              <Image
-                src={skill.image}
-                alt={skill.name}
-                width={24}
-                height={24}
-              />
-              <span>{skill.name}</span>
-            </div>
-          </a>
-        ))}
-      </div>
-      </div>
-      {/* Projects Section */}
-      <div
-        id="projects"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
+        variants={fadeInUp}
         className={`w-full z-10 ${!isMobile ? "max-w-4xl" : "max-w-2xl"}`}
       >
-        <h2 className="text-2xl font-semibold mb-4 text-center text-white">
-          {currentText.projects}
-        </h2>
-        <div className="flex flex-col gap-4">
-          {/* Example Project Entry 1 */}
-          <div className="border p-4 rounded-md bg-black/90 text-white">
+        <SectionHeading title="About Me" />
+        <div className={cardClass}>
+          <p className="text-gray-300">{currentText.aboutMe}</p>
+        </div>
+      </motion.div>
+
+      {/* Experience Section */}
+      <motion.div
+        id="experience"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
+        variants={fadeInUp}
+        className={`w-full z-10 ${!isMobile ? "max-w-4xl" : "max-w-2xl"}`}
+      >
+        <SectionHeading title={currentText.experience} />
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          className="flex flex-col gap-4"
+        >
+          <motion.div variants={staggerItem} whileHover={{ y: -4 }} className={cardClass}>
+            <h3 className="font-semibold">None</h3>
+            <p className="mt-2">{currentText.experienceNone}</p>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+
+      {/* Skills Section */}
+      <motion.div
+        id="skills"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
+        variants={fadeInUp}
+        className={`w-full z-10 ${!isMobile ? "max-w-4xl" : "max-w-2xl"}`}
+      >
+        <SectionHeading title={currentText.skills} />
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          className="flex flex-wrap gap-4 justify-center"
+        >
+          {skills.map((skill) => (
+            <motion.a
+              key={skill.name}
+              href={skill.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              variants={staggerItem}
+              whileHover={{ scale: 1.08, y: -3 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <div className={skillButtonStyle(isTouch)}>
+                <Image src={skill.image} alt={skill.name} width={24} height={24} />
+                <span>{skill.name}</span>
+              </div>
+            </motion.a>
+          ))}
+        </motion.div>
+      </motion.div>
+
+      {/* Projects Section */}
+      <motion.div
+        id="projects"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
+        variants={fadeInUp}
+        className={`w-full z-10 ${!isMobile ? "max-w-4xl" : "max-w-2xl"}`}
+      >
+        <SectionHeading title={currentText.projects} />
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          className="flex flex-col gap-4"
+        >
+          {/* Project Entry 1 */}
+          <motion.div variants={staggerItem} whileHover={{ y: -4 }} className={cardClass}>
             <h3 className="font-semibold">{currentText.project1Title}</h3>
             <div className="h-2"></div>
             <div className="text-gray-300">
@@ -494,21 +605,25 @@ export default function Home() {
               <p>{currentText.project1Desc2}</p>
               <p>{currentText.project1Desc3}</p>
             </div>
-            <div className="h-4"></div> {/* Added space */}
-            <div className={`mt-2 flex ${isMobile ? 'justify-center' : 'gap-2'}`}>
-              <a
+            <div className="h-4"></div>
+            <div className={`mt-2 flex ${isMobile ? "justify-center" : "gap-2"}`}>
+              <motion.a
                 href="https://github.com/FuzzyLaDuzzy/SOTP-2024"
                 target="_blank"
                 rel="noopener noreferrer"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`inline-block px-4 py-2 ${primaryButtonClass} rounded-md ${
+                  isMobile ? "px-8 py-3 text-lg" : ""
+                }`}
               >
-                <button className={`bg-black text-white border-2 border-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors duration-200 ${isMobile ? 'px-8 py-3 text-lg' : ''}`}>
-                  {currentText.githubRepo}
-                </button>
-              </a>
+                {currentText.githubRepo}
+              </motion.a>
             </div>
-          </div>
-          {/* Example Project Entry 2 */}
-          <div className="border p-4 rounded-md bg-black/90 text-white">
+          </motion.div>
+
+          {/* Project Entry 2 */}
+          <motion.div variants={staggerItem} whileHover={{ y: -4 }} className={cardClass}>
             <h3 className="font-semibold">{currentText.project3Title}</h3>
             <div className="h-2"></div>
             <div className="text-gray-300">
@@ -516,20 +631,25 @@ export default function Home() {
               <p>{currentText.project3Desc2}</p>
               <p>{currentText.project3Desc3}</p>
             </div>
-            <div className="h-4"></div> {/* Added space */}
-            <div className={`mt-2 flex ${isMobile ? 'justify-center' : 'gap-2'}`}>
-              <a
+            <div className="h-4"></div>
+            <div className={`mt-2 flex ${isMobile ? "justify-center" : "gap-2"}`}>
+              <motion.a
                 href="https://github.com/JoaoCoelho2003/PictuRas"
                 target="_blank"
                 rel="noopener noreferrer"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`inline-block px-4 py-2 ${primaryButtonClass} rounded-md ${
+                  isMobile ? "px-8 py-3 text-lg" : ""
+                }`}
               >
-                <button className={`bg-black text-white border-2 border-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors duration-200 ${isMobile ? 'px-8 py-3 text-lg' : ''}`}>
-                  {currentText.githubRepo}
-                </button>
-              </a>
+                {currentText.githubRepo}
+              </motion.a>
             </div>
-          </div>
-          <div className="border p-4 rounded-md bg-black/90 text-white">
+          </motion.div>
+
+          {/* Project Entry 3 */}
+          <motion.div variants={staggerItem} whileHover={{ y: -4 }} className={cardClass}>
             <h3 className="font-semibold">{currentText.project2Title}</h3>
             <div className="h-2"></div>
             <div className="text-gray-300">
@@ -537,60 +657,76 @@ export default function Home() {
               <p>{currentText.project2Desc2}</p>
               <p>{currentText.project2Desc3}</p>
             </div>
-            <div className="h-4"></div> {/* Added space */}
-            <div className={`mt-2 flex ${isMobile ? 'justify-center' : 'gap-2'}`}>
-              <a
+            <div className="h-4"></div>
+            <div className={`mt-2 flex ${isMobile ? "justify-center" : "gap-2"}`}>
+              <motion.a
                 href="https://github.com/josevasconcelos2002/LI3-project"
                 target="_blank"
                 rel="noopener noreferrer"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`inline-block px-4 py-2 ${primaryButtonClass} rounded-md ${
+                  isMobile ? "px-8 py-3 text-lg" : ""
+                }`}
               >
-                <button className={`bg-black text-white border-2 border-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors duration-200 ${isMobile ? 'px-8 py-3 text-lg' : ''}`}>
-                  {currentText.githubRepo}
-                </button>
-              </a>
+                {currentText.githubRepo}
+              </motion.a>
             </div>
-          </div>
-          {/* Add more project entries here */}
-        </div>
-      </div>
-
+          </motion.div>
+        </motion.div>
+      </motion.div>
 
       {/* Education Section */}
-      <div
+      <motion.div
         id="education"
-        className={`w-full z-10 ${
-          !isMobile ? "max-w-4xl" : "max-w-2xl"
-        }`}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
+        variants={fadeInUp}
+        className={`w-full z-10 ${!isMobile ? "max-w-4xl" : "max-w-2xl"}`}
       >
-        <h2 className="text-2xl font-semibold mb-4 text-center text-white">
-          {currentText.education}
-        </h2>
-        <div className="flex flex-col gap-4">
-          {/* Example Education Entry */}
-          <div className="border p-4 rounded-md bg-black/90 text-white">
+        <SectionHeading title={currentText.education} />
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          className="flex flex-col gap-4"
+        >
+          <motion.div variants={staggerItem} whileHover={{ y: -4 }} className={cardClass}>
             <h3 className="font-semibold">{currentText.bachelors}</h3>
             <p className="text-gray-300">[2020] - [2024]</p>
-          </div>
-          {/* Add more education entries here */}
-          <div className="border p-4 rounded-md bg-black/90 text-white">
+          </motion.div>
+          <motion.div variants={staggerItem} whileHover={{ y: -4 }} className={cardClass}>
             <h3 className="font-semibold">{currentText.masters}</h3>
             <p className="text-gray-300">[2024] - [Current]</p>
-          </div>
-        </div>
-      </div>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+
       {/* Contacts Section */}
-      <div
+      <motion.div
         id="contacts"
-        className={`w-full z-10 ${
-          !isMobile ? "max-w-4xl" : "max-w-2xl"
-        }`}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.3 }}
+        variants={fadeInUp}
+        className={`w-full z-10 ${!isMobile ? "max-w-4xl" : "max-w-2xl"}`}
       >
-        <h2 className="text-2xl font-semibold mb-4 text-center text-white">
-          {currentText.contacts}
-        </h2>
-        <div className="flex flex-col gap-4">
+        <SectionHeading title={currentText.contacts} />
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          className="flex flex-col gap-4"
+        >
           {/* Email */}
-          <div className="border p-4 rounded-md bg-black/90 text-white flex items-center gap-4">
+          <motion.div
+            variants={staggerItem}
+            whileHover={{ y: -4 }}
+            className={`${cardClass} flex items-center gap-4`}
+          >
             <Image src="/email.png" alt="Email" width={24} height={24} />
             <div>
               <h3 className="font-semibold">{currentText.email}</h3>
@@ -603,19 +739,27 @@ export default function Home() {
                 </a>
               </p>
             </div>
-          </div>
+          </motion.div>
 
           {/* Discord */}
-          <div className="border p-4 rounded-md bg-black/90 text-white flex items-center gap-4">
+          <motion.div
+            variants={staggerItem}
+            whileHover={{ y: -4 }}
+            className={`${cardClass} flex items-center gap-4`}
+          >
             <Image src="/discord.png" alt="Discord" width={24} height={24} />
             <div>
               <h3 className="font-semibold">{currentText.discord}</h3>
               <p className="text-gray-300">{currentText.discordusername}</p>
             </div>
-          </div>
+          </motion.div>
 
           {/* GitHub */}
-          <div className="border p-4 rounded-md bg-black/90 text-white flex items-center gap-4">
+          <motion.div
+            variants={staggerItem}
+            whileHover={{ y: -4 }}
+            className={`${cardClass} flex items-center gap-4`}
+          >
             <Image src="/github.png" alt="GitHub" width={24} height={24} />
             <div>
               <h3 className="font-semibold">GitHub</h3>
@@ -630,10 +774,14 @@ export default function Home() {
                 </a>
               </p>
             </div>
-          </div>
+          </motion.div>
 
           {/* LinkedIn */}
-          <div className="border p-4 rounded-md bg-black/90 text-white flex items-center gap-4">
+          <motion.div
+            variants={staggerItem}
+            whileHover={{ y: -4 }}
+            className={`${cardClass} flex items-center gap-4`}
+          >
             <Image src="/linkedin2.png" alt="LinkedIn" width={24} height={24} />
             <div>
               <h3 className="font-semibold">LinkedIn</h3>
@@ -648,13 +796,20 @@ export default function Home() {
                 </a>
               </p>
             </div>
-          </div>
-        </div>
-      </div>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+
       {/* Copyright */}
-      <div className="w-full text-center mt-8 text-gray-300 z-10">
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="w-full text-center mt-8 text-gray-300 z-10"
+      >
         <p>{currentText.copyright}</p>
-      </div>
+      </motion.div>
     </div>
   );
 }
