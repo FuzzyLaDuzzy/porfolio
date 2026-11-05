@@ -13,9 +13,14 @@ const geistMono = Geist_Mono({
 });
 
 const description =
-  "Flávio Silva — Software Engineering Master's student at the University of Minho (Braga, Portugal). Projects in C, Vue.js, React Native, Node.js and Kubernetes.";
+  "Flávio Silva — Software Engineering Master's student at the University of Minho (Braga, Portugal), open to junior roles. Projects in Python, Vue.js, React Native, Node.js and Kubernetes, including JobRadar, an open-source job finder for Portugal.";
+
+// Link previews (LinkedIn, WhatsApp...) need full addresses: the site's own, with its /porfolio prefix
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+const shareImage = { url: `${basePath}/og.png`, width: 1200, height: 630, alt: "Flávio Silva · Software Engineer" };
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://fuzzyladuzzy.github.io"),
   title: "Flávio Silva · Software Engineer",
   description,
   authors: [{ name: "Flávio Silva" }],
@@ -26,6 +31,7 @@ export const metadata: Metadata = {
     "University of Minho",
     "Braga",
     "Web Developer",
+    "JobRadar",
   ],
   openGraph: {
     title: "Flávio Silva · Software Engineer",
@@ -33,13 +39,14 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     alternateLocale: ["pt_PT"],
-    images: [{ url: "/profile4.jpg", width: 988, height: 1123, alt: "Flávio Silva" }],
+    url: `${basePath}/`,
+    images: [shareImage],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Flávio Silva · Software Engineer",
     description,
-    images: ["/profile4.jpg"],
+    images: [shareImage.url],
   },
 };
 

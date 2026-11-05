@@ -1,16 +1,18 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
+  animate,
   motion,
   AnimatePresence,
+  useInView,
   useReducedMotion,
   useScroll,
   useSpring,
   type Variants,
 } from "framer-motion";
-import { education, links, projects, skills, text, type Lang } from "./content";
+import { asset, education, links, projects, skills, text, type Lang } from "./content";
 
 /* ---------- animation presets ---------- */
 
@@ -105,6 +107,82 @@ function CopyButton({ value, label, doneLabel }: { value: string; label: string;
     >
       {done ? doneLabel : label}
     </button>
+  );
+}
+
+/* ---------- a number that counts up the first time it's on screen ---------- */
+
+function CountUp({ value, suffix = "", reduceMotion }: { value: number; suffix?: string; reduceMotion: boolean }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, amount: 0.6 });
+  const [shown, setShown] = useState(reduceMotion ? value : 0);
+
+  useEffect(() => {
+    if (!inView || reduceMotion) return;
+    const controls = animate(0, value, { duration: 1.4, ease: "easeOut", onUpdate: (v) => setShown(Math.round(v)) });
+    return () => controls.stop();
+  }, [inView, value, reduceMotion]);
+
+  return (
+    <span ref={ref} className="tabular-nums">
+      {reduceMotion ? value : shown}
+      {suffix}
+    </span>
+  );
+}
+
+/* ---------- a project's demo: plays only while it's on screen ---------- */
+
+type ProjectVideoProps = { src: string; poster: string; label: string; enlargeLabel: string; reduceMotion: boolean; className: string };
+
+function ProjectVideo({ src, poster, label, enlargeLabel, reduceMotion, className }: ProjectVideoProps) {
+  const ref = useRef<HTMLVideoElement>(null);
+  const inView = useInView(ref, { amount: 0.5 });
+
+  useEffect(() => {
+    const video = ref.current;
+    if (!video || reduceMotion) return;
+    if (inView) video.play().catch(() => {});
+    else video.pause();
+  }, [inView, reduceMotion]);
+
+  // full screen to read the details; iPhones only have their own video player for it
+  const enlarge = () => {
+    const video = ref.current as (HTMLVideoElement & { webkitEnterFullscreen?: () => void }) | null;
+    if (!video) return;
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+      return;
+    }
+    if (video.requestFullscreen) video.requestFullscreen().catch(() => {});
+    else video.webkitEnterFullscreen?.();
+    video.play().catch(() => {});
+  };
+
+  return (
+    <>
+      <video
+        ref={ref}
+        className={`border border-white/10 bg-black cursor-zoom-in [&:fullscreen]:object-contain [&:fullscreen]:rounded-none [&:fullscreen]:cursor-zoom-out ${className}`}
+        src={asset(src)}
+        poster={asset(poster)}
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        controls={reduceMotion}
+        aria-label={label}
+        onClick={enlarge}
+      />
+      <button
+        type="button"
+        onClick={enlarge}
+        className="absolute right-2 bottom-2 inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-black/75 px-3 py-1 text-xs text-white backdrop-blur-sm transition-colors hover:bg-white hover:text-black focus-visible:outline-2 focus-visible:outline-white"
+      >
+        <span aria-hidden>⤢</span>
+        {enlargeLabel}
+      </button>
+    </>
   );
 }
 
@@ -224,7 +302,6 @@ export default function Home() {
   const socials = [
     { href: links.github, icon: "/github.png", label: "GitHub", invert: true },
     { href: links.linkedin, icon: "/linkedin2.png", label: "LinkedIn" },
-    { href: links.instagram, icon: "/insta.png", label: "Instagram" },
   ];
 
   return (
@@ -247,7 +324,7 @@ export default function Home() {
       {/* Video background (compressed 3 MB loop + poster for instant paint) */}
       <div className="fixed inset-0 -z-10 overflow-hidden opacity-30" aria-hidden>
         {reduceMotion ? (
-          <Image src="/wavy-poster.jpg" alt="" fill className="object-cover" priority />
+          <Image src={asset("/wavy-poster.jpg")} alt="" fill className="object-cover" priority />
         ) : (
           <video
             className="w-full h-full object-cover"
@@ -256,9 +333,9 @@ export default function Home() {
             muted
             playsInline
             preload="auto"
-            poster="/wavy-poster.jpg"
+            poster={asset("/wavy-poster.jpg")}
           >
-            <source src="/wavy-bg.mp4" type="video/mp4" />
+            <source src={asset("/wavy-bg.mp4")} type="video/mp4" />
           </video>
         )}
       </div>
@@ -365,7 +442,7 @@ export default function Home() {
           className="w-48 h-60 sm:w-64 sm:h-80 overflow-hidden relative rounded-full ring-2 ring-white/20 hover:ring-white/40 transition-[box-shadow] duration-300 shadow-[0_0_40px_rgba(255,255,255,0.12)]"
         >
           <Image
-            src="/profile4.jpg"
+            src={asset("/profile4.jpg")}
             alt={`Photo of ${t.name}`}
             width={988}
             height={1123}
@@ -375,6 +452,19 @@ export default function Home() {
           />
         </motion.div>
 
+
+        <motion.span
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-xs sm:text-sm text-emerald-300"
+        >
+          <span className="relative flex w-2 h-2">
+            {!reduceMotion && <span className="absolute inline-flex w-full h-full rounded-full bg-emerald-400 opacity-75 animate-ping" />}
+            <span className="relative inline-flex w-2 h-2 rounded-full bg-emerald-400" />
+          </span>
+          {t.openToWork}
+        </motion.span>
 
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
@@ -448,7 +538,7 @@ export default function Home() {
               whileTap={{ scale: 0.9 }}
               className="w-10 h-10 flex items-center justify-center rounded-full bg-white/90 hover:bg-white transition-colors"
             >
-              <Image src={s.icon} alt="" width={22} height={22} className={s.invert ? "invert" : ""} />
+              <Image src={asset(s.icon)} alt="" width={22} height={22} className={s.invert ? "invert" : ""} />
             </motion.a>
           ))}
         </motion.div>
@@ -511,7 +601,7 @@ export default function Home() {
                     >
                       {skill.icon ? (
                         <Image
-                          src={skill.icon}
+                          src={asset(skill.icon)}
                           alt=""
                           width={16}
                           height={16}
@@ -541,13 +631,40 @@ export default function Home() {
         >
           {projects.map((project, index) => {
             const p = t.projects[project.key];
+            const { video } = project;
             return (
               <motion.article
                 key={project.key}
                 variants={staggerItem}
                 whileHover={{ y: -6 }}
-                className={`${cardClass} flex flex-col justify-between`}
+                className={`${cardClass} flex flex-col justify-between ${
+                  !video ? "" : `md:col-span-2 md:grid md:gap-6 ${video.shape === "wide" ? "md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]" : "md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]"}`
+                }`}
               >
+                {video && (
+                  // a phone app shows as a phone screen, on a soft backdrop
+                  <div
+                    className={`relative mb-5 md:mb-0 ${
+                      video.shape === "phone"
+                        ? "aspect-[4/5] min-h-0 overflow-hidden flex justify-center rounded-lg border border-white/10 bg-gradient-to-b from-emerald-400/15 via-white/5 to-transparent py-3"
+                        : ""
+                    }`}
+                  >
+                    <ProjectVideo
+                      src={video.src}
+                      poster={video.poster}
+                      label={p.title}
+                      enlargeLabel={t.enlarge}
+                      reduceMotion={reduceMotion}
+                      className={
+                        video.shape === "phone"
+                          ? "h-full w-auto rounded-2xl shadow-2xl shadow-black/60"
+                          : `w-full object-cover rounded-lg ${video.shape === "wide" ? "aspect-[16/10]" : "aspect-square"}`
+                      }
+                    />
+                  </div>
+                )}
+                <div className="flex flex-1 flex-col justify-between">
                 <div>
                   <div className="flex items-baseline gap-2 mb-3">
                     <span className="text-xs font-mono text-white/40">{String(index + 1).padStart(2, "0")}</span>
@@ -569,18 +686,51 @@ export default function Home() {
                       <li key={i}>{line}</li>
                     ))}
                   </ul>
+                  {project.stats && (
+                    <dl className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5">
+                      {project.stats.map((stat) => (
+                        <div key={stat.label} className="rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+                          <dt className="sr-only">{t.stats[stat.label]}</dt>
+                          <dd className="text-2xl font-semibold text-white">
+                            <CountUp value={stat.value} suffix={stat.suffix} reduceMotion={reduceMotion} />
+                          </dd>
+                          <dd aria-hidden className="text-[11px] uppercase tracking-wide text-gray-400">{t.stats[stat.label]}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  )}
                 </div>
-                <div className="mt-6">
-                  <a
-                    href={project.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`${pillButton} px-4 py-2 text-sm w-full sm:w-auto group`}
-                  >
-                    <Image src="/github.png" alt="" width={14} height={14} />
-                    {t.seeCode}
-                    <span className="transition-transform group-hover:translate-x-0.5">→</span>
-                  </a>
+                <div className="mt-6 flex flex-wrap gap-2">
+                  {project.github && (
+                    <a
+                      href={project.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`${pillButton} px-4 py-2 text-sm w-full sm:w-auto group`}
+                    >
+                      <Image src={asset("/github.png")} alt="" width={14} height={14} />
+                      {t.seeCode}
+                      <span className="transition-transform group-hover:translate-x-0.5">→</span>
+                    </a>
+                  )}
+                  {project.install && (
+                    <a
+                      href={project.install}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`${solidButton} px-4 py-2 text-sm w-full sm:w-auto group`}
+                    >
+                      ⬇ {t.install}
+                      <span className="transition-transform group-hover:translate-x-0.5">→</span>
+                    </a>
+                  )}
+                  {project.inProgress && (
+                    <span className="inline-flex items-center gap-2 rounded-full border border-amber-300/30 bg-amber-300/10 px-3 py-1.5 text-sm text-amber-200">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-300" />
+                      {t.inProgress}
+                    </span>
+                  )}
+                </div>
                 </div>
               </motion.article>
             );
@@ -628,7 +778,7 @@ export default function Home() {
         >
           <motion.div variants={staggerItem} className={`${cardClass} flex items-center gap-4 sm:col-span-2`}>
             <span className="w-10 h-10 shrink-0 rounded-full bg-white flex items-center justify-center">
-              <Image src="/email.png" alt="" width={20} height={20} />
+              <Image src={asset("/email.png")} alt="" width={20} height={20} />
             </span>
             <div className="min-w-0 flex-1">
               <h3 className="font-semibold">Email</h3>
@@ -647,7 +797,7 @@ export default function Home() {
             className={`${cardClass} flex items-center gap-4`}
           >
             <span className="w-10 h-10 shrink-0 rounded-full bg-white flex items-center justify-center">
-              <Image src="/linkedin2.png" alt="" width={20} height={20} />
+              <Image src={asset("/linkedin2.png")} alt="" width={20} height={20} />
             </span>
             <div>
               <h3 className="font-semibold">LinkedIn</h3>
@@ -663,7 +813,7 @@ export default function Home() {
             className={`${cardClass} flex items-center gap-4`}
           >
             <span className="w-10 h-10 shrink-0 rounded-full bg-white flex items-center justify-center">
-              <Image src="/github.png" alt="" width={20} height={20} className="invert" />
+              <Image src={asset("/github.png")} alt="" width={20} height={20} className="invert" />
             </span>
             <div>
               <h3 className="font-semibold">GitHub</h3>

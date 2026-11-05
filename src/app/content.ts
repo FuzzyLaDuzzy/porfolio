@@ -3,13 +3,18 @@
 
 export type Lang = "en" | "pt";
 
+// Files in public/ with the site's prefix (/porfolio on GitHub Pages, none locally): next/image,
+// <video> and plain links don't add it themselves. See next.config.ts.
+export const asset = (path: string) => `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}${path}`;
+
 export const links = {
   email: "silvaflavio820@gmail.com",
   github: "https://github.com/FuzzyLaDuzzy",
   githubUsername: "FuzzyLaDuzzy",
   linkedin: "https://www.linkedin.com/in/flávio-alex-silva/",
-  instagram: "https://www.instagram.com/flavios.silva.dmwm/",
-  cv: "/cv.pdf",
+  cv: asset("/cv.pdf"),
+  jobradar: "https://github.com/FuzzyLaDuzzy/jobradar",
+  jobradarInstall: "https://github.com/FuzzyLaDuzzy/jobradar/releases/latest",
 };
 
 export const text = {
@@ -29,12 +34,14 @@ export const text = {
     titles: ["Software Engineer", "Web Developer", "Designer"],
     tagline:
       "Master's student in Software Engineering at the University of Minho.",
+    openToWork: "Open to junior roles · Braga",
     downloadResume: "Download CV",
     contactMe: "Get in touch",
     aboutTitle: "About Me",
     aboutMe: [
-      "I'm a Master's student in Software Engineering at the University of Minho in Braga, Portugal, currently finishing my thesis on creating an LLM framework for data quality generation.",
-      "I enjoy working across the stack — from low-level systems in C to web and mobile apps with Vue.js, React Native and Node.js, and deploying them with Kubernetes.",
+      "I'm a Master's student in Software Engineering at the University of Minho in Braga, Portugal, finishing my thesis on a framework in which LLMs propose data quality checks that are validated before they are used.",
+      "Lately I built JobRadar, an open-source job finder for Portugal that runs on Windows, macOS, Linux and Android. I enjoy working across the stack — from C to Python, Vue.js, React Native and Node.js — and shipping what I build, with CI, installers, Docker and Kubernetes.",
+      "I'm looking for a junior role or a professional internship in the Braga area.",
     ],
     skillsTitle: "Skills",
     skillGroups: {
@@ -44,6 +51,10 @@ export const text = {
     },
     projectsTitle: "Projects",
     seeCode: "See code",
+    install: "Install",
+    inProgress: "In progress",
+    enlarge: "Enlarge",
+    stats: { sites: "job sites", tests: "automated tests", platforms: "platforms", seconds: "seconds per search" },
     educationTitle: "Education",
     bachelors: "Bachelor's Degree in Software Engineering",
     masters: "Master's Degree in Software Engineering",
@@ -56,6 +67,22 @@ export const text = {
     rights: "All rights reserved.",
     backToTop: "Back to top",
     projects: {
+      jobradar: {
+        title: "JobRadar · Job Finder for Portugal",
+        desc: [
+          "Finds junior jobs and internships on 30+ job boards and company careers sites at once, keeps the ones that fit your area and level, and scores each one against your profile.",
+          "Optional AI (Gemini or Claude) explains each score, drafts the application message, tailors the CV and writes follow-up emails; applications are tracked through interview, offer or rejection.",
+          "Python, FastAPI and SQLite with a Vue 3 interface. Ships as a Windows installer, one-line installers for macOS and Linux, and an Android app that runs the same Python code on the phone — every release is installed and tested on an emulator and on Windows by GitHub Actions.",
+        ],
+      },
+      thesis: {
+        title: "LLM Framework for Data Quality · MSc Thesis",
+        desc: [
+          "Python framework in which a large language model (Gemini, or local models through Ollama) proposes data quality checks from the context of each table.",
+          "Deterministic validators test every proposal against the schema and the real data before it becomes SQL, and a human expert decides what is kept.",
+          "Evaluated on a real data pipeline, against the tests written by its data engineers.",
+        ],
+      },
       f3m: {
         title: "F3M · Medication Care App",
         desc: [
@@ -106,12 +133,14 @@ export const text = {
     titles: ["Engenheiro de Software", "Desenvolvedor Web", "Designer"],
     tagline:
       "Estudante de Mestrado em Engenharia Informática na Universidade do Minho.",
+    openToWork: "Disponível para vagas júnior · Braga",
     downloadResume: "Descarregar CV",
     contactMe: "Entrar em contacto",
     aboutTitle: "Sobre Mim",
     aboutMe: [
-      "Sou estudante de Mestrado em Engenharia Informática na Universidade do Minho, em Braga, e estou a terminar a minha tese sobre a criação de uma framework de LLMs para geração de qualidade de dados.",
-      "Gosto de trabalhar em todas as camadas — desde sistemas de baixo nível em C até aplicações web e móveis com Vue.js, React Native e Node.js, com deploy em Kubernetes.",
+      "Sou estudante de Mestrado em Engenharia Informática na Universidade do Minho, em Braga, e estou a terminar a minha tese sobre uma framework em que LLMs propõem verificações de qualidade de dados que são validadas antes de serem usadas.",
+      "Recentemente criei o JobRadar, um buscador de vagas open source para Portugal que corre em Windows, macOS, Linux e Android. Gosto de trabalhar em todas as camadas — de C a Python, Vue.js, React Native e Node.js — e de pôr o que faço nas mãos de quem o usa, com CI, instaladores, Docker e Kubernetes.",
+      "Procuro uma vaga júnior ou um estágio profissional na zona de Braga.",
     ],
     skillsTitle: "Competências",
     skillGroups: {
@@ -121,6 +150,10 @@ export const text = {
     },
     projectsTitle: "Projetos",
     seeCode: "Ver código",
+    install: "Instalar",
+    inProgress: "Em curso",
+    enlarge: "Ampliar",
+    stats: { sites: "sites de emprego", tests: "testes automáticos", platforms: "plataformas", seconds: "segundos por pesquisa" },
     educationTitle: "Educação",
     bachelors: "Licenciatura em Engenharia Informática",
     masters: "Mestrado em Engenharia Informática",
@@ -133,6 +166,22 @@ export const text = {
     rights: "Todos os direitos reservados.",
     backToTop: "Voltar ao topo",
     projects: {
+      jobradar: {
+        title: "JobRadar · Buscador de Vagas para Portugal",
+        desc: [
+          "Procura vagas júnior e estágios em mais de 30 sites de emprego e páginas de carreiras ao mesmo tempo, guarda as que encaixam na tua zona e no teu nível e dá a cada uma uma pontuação face ao teu perfil.",
+          "Com IA opcional (Gemini ou Claude), explica cada pontuação, escreve a mensagem de candidatura, ajusta o CV e redige emails de seguimento; acompanha as candidaturas até à entrevista, oferta ou rejeição.",
+          "Python, FastAPI e SQLite com interface em Vue 3. Tem instalador para Windows, instaladores de uma linha para macOS e Linux e uma app Android que corre o mesmo código Python no telemóvel — cada versão é instalada e testada num emulador e em Windows pelo GitHub Actions.",
+        ],
+      },
+      thesis: {
+        title: "Framework de LLMs para Qualidade de Dados · Tese de Mestrado",
+        desc: [
+          "Framework em Python em que um modelo de linguagem (Gemini, ou modelos locais através do Ollama) propõe verificações de qualidade de dados a partir do contexto de cada tabela.",
+          "Validadores determinísticos testam cada proposta contra o esquema e os dados reais antes de se tornar SQL, e um especialista humano decide o que fica.",
+          "Avaliada num pipeline de dados real, face aos testes escritos pelos seus engenheiros de dados.",
+        ],
+      },
       f3m: {
         title: "F3M · App de Gestão de Medicação",
         desc: [
@@ -186,6 +235,7 @@ export const skills: Record<"languages" | "frameworks" | "tools", Skill[]> = {
     { name: "React Native", icon: "/icons/react.svg", link: "https://reactnative.dev/" },
     { name: "Node.js", icon: "/icons/nodejs.svg", link: "https://nodejs.org/" },
     { name: "Express", icon: "/icons/express.svg", mono: true, link: "https://expressjs.com/" },
+    { name: "FastAPI", link: "https://fastapi.tiangolo.com/" },
   ],
   tools: [
     { name: "PostgreSQL", icon: "/icons/postgresql.svg", link: "https://www.postgresql.org/" },
@@ -193,20 +243,55 @@ export const skills: Record<"languages" | "frameworks" | "tools", Skill[]> = {
     { name: "Kubernetes", icon: "/icons/kubernetes.svg", link: "https://kubernetes.io/" },
     { name: "Helm", icon: "/icons/helm.svg", mono: true, link: "https://helm.sh/" },
     { name: "Git", icon: "/icons/git.svg", link: "https://git-scm.com/" },
+    { name: "SQLite", link: "https://www.sqlite.org/" },
+    { name: "Docker", link: "https://www.docker.com/" },
+    { name: "GitHub Actions", link: "https://github.com/features/actions" },
+    { name: "Gemini & Claude APIs", link: "https://ai.google.dev/" },
   ],
 };
 
-// Newest first — recruiters read top to bottom.
-export const projects = [
+export type Project = {
+  key: keyof (typeof text)["en"]["projects"];
+  tags: readonly string[];
+  github?: string;
+  install?: string; // where to download it
+  // a demo, played while it's on screen; a project with one spans the whole row, the video beside the text
+  video?: { src: string; poster: string; shape: "square" | "wide" | "phone" };
+  stats?: readonly { value: number; suffix?: string; label: keyof (typeof text)["en"]["stats"] }[];
+  inProgress?: boolean;
+};
+
+// Newest first — recruiters read top to bottom; the ones with a demo first, the thesis (still in progress) after them.
+export const projects: readonly Project[] = [
+  {
+    key: "jobradar",
+    tags: ["Python", "FastAPI", "Vue.js", "SQLite", "Android", "GitHub Actions"],
+    github: links.jobradar,
+    install: links.jobradarInstall,
+    video: { src: "/projects/jobradar.mp4", poster: "/projects/jobradar-poster.jpg", shape: "square" },
+    stats: [
+      { value: 30, suffix: "+", label: "sites" },
+      { value: 221, label: "tests" },
+      { value: 4, label: "platforms" },
+      { value: 19, label: "seconds" },
+    ],
+  },
   {
     key: "f3m",
     tags: ["React Native", "Node.js", "TypeScript", "PostgreSQL"],
     github: "https://github.com/MartimRedondo/F3M_APP",
+    video: { src: "/projects/f3m.mp4", poster: "/projects/f3m-poster.jpg", shape: "phone" },
   },
   {
     key: "picturas",
     tags: ["Vue.js", "Kubernetes", "Helm"],
     github: "https://github.com/JoaoCoelho2003/PictuRas",
+    video: { src: "/projects/picturas.mp4", poster: "/projects/picturas-poster.jpg", shape: "wide" },
+  },
+  {
+    key: "thesis",
+    tags: ["Python", "LLMs", "SQL", "ClickHouse"],
+    inProgress: true,
   },
   {
     key: "li3",
@@ -218,7 +303,7 @@ export const projects = [
     tags: ["C", "Operating Systems"],
     github: "https://github.com/FuzzyLaDuzzy/SOTP-2024",
   },
-] as const;
+];
 
 export const education = [
   { key: "masters", from: "2024", to: null },
