@@ -228,6 +228,7 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState<SectionId | null>(null);
+  const navClicked = useRef(false); // after a nav click, keep that link lit until the user scrolls by hand
   const reduceMotion = useReducedMotion() ?? false;
 
   const t = text[lang];
@@ -255,28 +256,35 @@ export default function Home() {
 
   const toggleLanguage = () => setLang((l) => (l === "en" ? "pt" : "en"));
 
-  // Nav background on scroll + highlight the section in view
+  // Nav background on scroll + highlight the section in view: the last one whose top has
+  // passed a line just under the bar. Near the end of the page the line slides down to the
+  // bottom of the screen, so the last short sections, which can't scroll up to the bar,
+  // still get their turn (a fixed line in the middle of a tall screen skipped them)
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 24);
+      if (navClicked.current) return;
+      const toBottom = document.documentElement.scrollHeight - window.innerHeight - window.scrollY;
+      const line = 120 + Math.max(0, window.innerHeight - 120 - toBottom);
+      let current: SectionId | null = null;
+      for (const id of SECTION_IDS) {
+        const top = document.getElementById(id)?.getBoundingClientRect().top;
+        if (top !== undefined && top <= line) current = id;
+      }
+      setActive(current);
+    };
+    const byHand = () => {
+      navClicked.current = false;
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) setActive(e.target.id as SectionId);
-        });
-      },
-      { rootMargin: "-45% 0px -50% 0px" }
-    );
-    SECTION_IDS.forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
+    // pointerdown comes before a nav button's click, so the click locks again right after
+    const handEvents = ["wheel", "pointerdown", "keydown"] as const;
+    handEvents.forEach((e) => window.addEventListener(e, byHand, { passive: true }));
 
     return () => {
       window.removeEventListener("scroll", onScroll);
-      observer.disconnect();
+      handEvents.forEach((e) => window.removeEventListener(e, byHand));
     };
   }, []);
 
@@ -292,8 +300,10 @@ export default function Home() {
     };
   }, [menuOpen]);
 
-  const scrollTo = (id: string) => {
+  const scrollTo = (id: SectionId) => {
     setMenuOpen(false);
+    navClicked.current = true;
+    setActive(id);
     document.getElementById(id)?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" });
   };
 
