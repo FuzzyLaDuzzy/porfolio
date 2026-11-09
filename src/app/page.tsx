@@ -31,6 +31,10 @@ const staggerItem: Variants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
 };
 
+// Show a block as soon as its top is 80px into the screen. A share of its height ("amount") grows with
+// the block: the tall Projects section needed most of a phone screen of it in view before showing.
+const reveal = { once: true, margin: "0px 0px -80px 0px" } as const;
+
 /* ---------- shared styles ---------- */
 
 const pillButton =
@@ -78,7 +82,7 @@ function Section({
       id={id}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, amount: 0.15 }}
+      viewport={reveal}
       variants={fadeInUp}
       className={`w-full z-10 scroll-mt-24 ${wide ? "max-w-5xl" : "max-w-4xl"}`}
     >
@@ -597,7 +601,7 @@ export default function Home() {
                 variants={staggerContainer}
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true, amount: 0.3 }}
+                viewport={reveal}
                 className="flex flex-wrap gap-2"
               >
                 {skills[group].map((skill) => (
@@ -636,7 +640,7 @@ export default function Home() {
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.1 }}
+          viewport={reveal}
           className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch"
         >
           {projects.map((project, index) => {
@@ -754,7 +758,7 @@ export default function Home() {
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
+          viewport={reveal}
           className="flex flex-col gap-4"
         >
           {education.map((e) => (
@@ -783,7 +787,7 @@ export default function Home() {
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
+          viewport={reveal}
           className="grid gap-4 sm:grid-cols-2"
         >
           <motion.div variants={staggerItem} className={`${cardClass} flex items-center gap-4 sm:col-span-2`}>

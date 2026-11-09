@@ -139,7 +139,7 @@ export const text = {
     aboutTitle: "Sobre Mim",
     aboutMe: [
       "Sou estudante de Mestrado em Engenharia Informática na Universidade do Minho, em Braga, e estou a terminar a minha tese sobre uma framework em que LLMs propõem verificações de qualidade de dados que são validadas antes de serem usadas.",
-      "Recentemente criei o JobRadar, um buscador de vagas open source para Portugal que corre em Windows, macOS, Linux e Android. Gosto de trabalhar em todas as camadas — de C a Python, Vue.js, React Native e Node.js — e de pôr o que faço nas mãos de quem o usa, com CI, instaladores, Docker e Kubernetes.",
+      "Recentemente criei o JobRadar, uma aplicação de código aberto para procurar emprego em Portugal, que corre em Windows, macOS, Linux e Android. Gosto de trabalhar em todas as camadas — de C a Python, Vue.js, React Native e Node.js — e de pôr o que faço nas mãos de quem o usa, com CI, instaladores, Docker e Kubernetes.",
       "Procuro uma vaga júnior ou um estágio profissional na zona de Braga.",
     ],
     skillsTitle: "Competências",
@@ -167,7 +167,7 @@ export const text = {
     backToTop: "Voltar ao topo",
     projects: {
       jobradar: {
-        title: "JobRadar · Buscador de Vagas para Portugal",
+        title: "JobRadar · Procura de Emprego em Portugal",
         desc: [
           "Procura vagas júnior e estágios em mais de 30 sites de emprego e páginas de carreiras ao mesmo tempo, guarda as que encaixam na tua zona e no teu nível e dá a cada uma uma pontuação face ao teu perfil.",
           "Com IA opcional (Gemini ou Claude), explica cada pontuação, escreve a mensagem de candidatura, ajusta o CV e redige emails de seguimento; acompanha as candidaturas até à entrevista, oferta ou rejeição.",
