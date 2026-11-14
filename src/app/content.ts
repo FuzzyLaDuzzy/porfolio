@@ -218,8 +218,8 @@ export const text = {
   },
 } as const;
 
-// mono: white logo that gets inverted when the pill turns white on hover
-export type Skill = { name: string; icon?: string; mono?: boolean; link: string };
+// mono: white logo that gets inverted when the pill turns white on hover. Several icons show side by side
+export type Skill = { name: string; icon?: string | string[]; mono?: boolean; link: string };
 
 export const skills: Record<"languages" | "frameworks" | "tools", Skill[]> = {
   languages: [
@@ -235,7 +235,7 @@ export const skills: Record<"languages" | "frameworks" | "tools", Skill[]> = {
     { name: "React Native", icon: "/icons/react.svg", link: "https://reactnative.dev/" },
     { name: "Node.js", icon: "/icons/nodejs.svg", link: "https://nodejs.org/" },
     { name: "Express", icon: "/icons/express.svg", mono: true, link: "https://expressjs.com/" },
-    { name: "FastAPI", link: "https://fastapi.tiangolo.com/" },
+    { name: "FastAPI", icon: "/icons/fastapi.svg", link: "https://fastapi.tiangolo.com/" },
   ],
   tools: [
     { name: "PostgreSQL", icon: "/icons/postgresql.svg", link: "https://www.postgresql.org/" },
@@ -243,10 +243,10 @@ export const skills: Record<"languages" | "frameworks" | "tools", Skill[]> = {
     { name: "Kubernetes", icon: "/icons/kubernetes.svg", link: "https://kubernetes.io/" },
     { name: "Helm", icon: "/icons/helm.svg", mono: true, link: "https://helm.sh/" },
     { name: "Git", icon: "/icons/git.svg", link: "https://git-scm.com/" },
-    { name: "SQLite", link: "https://www.sqlite.org/" },
-    { name: "Docker", link: "https://www.docker.com/" },
-    { name: "GitHub Actions", link: "https://github.com/features/actions" },
-    { name: "Gemini & Claude APIs", link: "https://ai.google.dev/" },
+    { name: "SQLite", icon: "/icons/sqlite.svg", link: "https://www.sqlite.org/" },
+    { name: "Docker", icon: "/icons/docker.svg", link: "https://www.docker.com/" },
+    { name: "GitHub Actions", icon: "/icons/githubactions.svg", link: "https://github.com/features/actions" },
+    { name: "Gemini & Claude APIs", icon: ["/icons/gemini.svg", "/icons/claude.svg"], link: "https://ai.google.dev/" },
   ],
 };
 

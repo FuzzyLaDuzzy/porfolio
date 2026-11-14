@@ -46,6 +46,22 @@ const solidButton =
 const cardClass =
   "border border-white/10 p-5 sm:p-6 rounded-xl bg-black/70 backdrop-blur-sm text-white shadow-lg transition-all duration-300 hover:border-white/30 hover:shadow-2xl hover:shadow-black/40";
 
+// Projects with a demo take a whole row, the others go two to a row. One left alone in its row (the next
+// project has a demo, or there is none) takes the whole row too, so there's no empty space beside it
+const aloneInRow = new Set<string>();
+{
+  let besidePrevious = false;
+  projects.forEach((project, i) => {
+    if (project.video) {
+      besidePrevious = false;
+      return;
+    }
+    const next = projects[i + 1];
+    if (!besidePrevious && (!next || next.video)) aloneInRow.add(project.key);
+    besidePrevious = !besidePrevious;
+  });
+}
+
 const SECTION_IDS = ["about", "skills", "projects", "education", "contacts"] as const;
 type SectionId = (typeof SECTION_IDS)[number];
 
@@ -614,13 +630,18 @@ export default function Home() {
                       className={`${pillButton} group px-3 py-1.5 text-sm`}
                     >
                       {skill.icon ? (
-                        <Image
-                          src={asset(skill.icon)}
-                          alt=""
-                          width={16}
-                          height={16}
-                          className={`w-4 h-4 object-contain ${skill.mono ? "group-hover:invert group-active:invert" : ""}`}
-                        />
+                        <span className="flex gap-1">
+                          {[skill.icon].flat().map((icon) => (
+                            <Image
+                              key={icon}
+                              src={asset(icon)}
+                              alt=""
+                              width={16}
+                              height={16}
+                              className={`w-4 h-4 object-contain ${skill.mono ? "group-hover:invert group-active:invert" : ""}`}
+                            />
+                          ))}
+                        </span>
                       ) : (
                         <span className="w-1.5 h-1.5 rounded-full bg-current opacity-60" />
                       )}
@@ -652,16 +673,17 @@ export default function Home() {
                 variants={staggerItem}
                 whileHover={{ y: -6 }}
                 className={`${cardClass} flex flex-col justify-between ${
-                  !video ? "" : `md:col-span-2 md:grid md:gap-6 ${video.shape === "wide" ? "md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]" : "md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]"}`
+                  !video ? (aloneInRow.has(project.key) ? "md:col-span-2" : "") : `md:col-span-2 md:grid md:gap-6 ${video.shape === "wide" ? "md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]" : "md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]"}`
                 }`}
               >
                 {video && (
-                  // a phone app shows as a phone screen, on a soft backdrop
+                  // a phone app shows as a phone screen, on a soft backdrop. The others keep the video's own
+                  // height (self-start): stretched to a taller text column, the Enlarge button fell below the video
                   <div
                     className={`relative mb-5 md:mb-0 ${
                       video.shape === "phone"
                         ? "aspect-[4/5] min-h-0 overflow-hidden flex justify-center rounded-lg border border-white/10 bg-gradient-to-b from-emerald-400/15 via-white/5 to-transparent py-3"
-                        : ""
+                        : "md:self-start"
                     }`}
                   >
                     <ProjectVideo
