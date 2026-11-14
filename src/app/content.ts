@@ -15,6 +15,7 @@ export const links = {
   cv: asset("/cv.pdf"),
   jobradar: "https://github.com/FuzzyLaDuzzy/jobradar",
   jobradarInstall: "https://github.com/FuzzyLaDuzzy/jobradar/releases/latest",
+  dqvouch: "https://github.com/FuzzyLaDuzzy/dqvouch",
 };
 
 export const text = {
@@ -56,7 +57,10 @@ export const text = {
     enlarge: "Enlarge",
     allProjects: "All",
     filterLabel: "Show projects by technology",
-    stats: { sites: "job sites", tests: "automated tests", platforms: "platforms", seconds: "seconds per search" },
+    stats: {
+      sites: "job sites", tests: "automated tests", platforms: "platforms", seconds: "seconds per search",
+      found: "of the engineers' tests found", databases: "databases", stages: "stages, from context to verdict",
+    },
     educationTitle: "Education",
     bachelors: "Bachelor's Degree in Software Engineering",
     masters: "Master's Degree in Software Engineering",
@@ -79,11 +83,11 @@ export const text = {
         ],
       },
       thesis: {
-        title: "LLM Framework for Data Quality · MSc Thesis",
+        title: "dqvouch · LLM Data Quality Tests · MSc Thesis",
         desc: [
-          "Python framework in which a large language model (Gemini, or local models through Ollama) proposes data quality checks from the context of each table.",
-          "Deterministic validators test every proposal against the schema and the real data before it becomes SQL, and a human expert decides what is kept.",
-          "Evaluated on a real data pipeline, against the tests written by its data engineers.",
+          "The open-source tool from my MSc thesis: a language model (Gemini, or a local model through Ollama) proposes data quality tests from what a data pipeline already says about each table — its schema, column comments, the SQL that builds it and its lineage.",
+          "The model never writes SQL: deterministic validators check every proposal against the schema and the real data, a person confirms each test, and only then do read-only queries run on PostgreSQL or ClickHouse. Confirmed tests keep running on a schedule or from cron and CI, with alerts when one starts failing.",
+          "Python and FastAPI with a Vue 3 interface. Evaluated on a real data pipeline: with the rules it reads from the SQL, it found two thirds of the tests its data engineers had written.",
         ],
       },
       f3m: {
@@ -158,7 +162,10 @@ export const text = {
     enlarge: "Ampliar",
     allProjects: "Todos",
     filterLabel: "Mostrar projetos por tecnologia",
-    stats: { sites: "sites de emprego", tests: "testes automáticos", platforms: "plataformas", seconds: "segundos por pesquisa" },
+    stats: {
+      sites: "sites de emprego", tests: "testes automáticos", platforms: "plataformas", seconds: "segundos por pesquisa",
+      found: "dos testes dos engenheiros encontrados", databases: "bases de dados", stages: "etapas, do contexto ao veredicto",
+    },
     educationTitle: "Educação",
     bachelors: "Licenciatura em Engenharia Informática",
     masters: "Mestrado em Engenharia Informática",
@@ -181,11 +188,11 @@ export const text = {
         ],
       },
       thesis: {
-        title: "Framework de LLMs para Qualidade de Dados · Tese de Mestrado",
+        title: "dqvouch · Testes de Qualidade de Dados com LLMs · Tese de Mestrado",
         desc: [
-          "Framework em Python em que um modelo de linguagem (Gemini, ou modelos locais através do Ollama) propõe verificações de qualidade de dados a partir do contexto de cada tabela.",
-          "Validadores determinísticos testam cada proposta contra o esquema e os dados reais antes de se tornar SQL, e um especialista humano decide o que fica.",
-          "Avaliada num pipeline de dados real, face aos testes escritos pelos seus engenheiros de dados.",
+          "A ferramenta open source da minha tese de mestrado: um modelo de linguagem (Gemini, ou um modelo local através do Ollama) propõe testes de qualidade de dados a partir do que um pipeline de dados já diz sobre cada tabela — o esquema, os comentários das colunas, o SQL que a constrói e a sua linhagem.",
+          "O modelo nunca escreve SQL: validadores determinísticos verificam cada proposta contra o esquema e os dados reais, uma pessoa confirma cada teste e só depois correm consultas de leitura em PostgreSQL ou ClickHouse. Os testes confirmados continuam a correr com agendamento ou a partir do cron e da CI, com alertas quando um começa a falhar.",
+          "Python e FastAPI com interface em Vue 3. Avaliada num pipeline de dados real: com as regras que lê do SQL, encontrou dois terços dos testes escritos pelos seus engenheiros de dados.",
         ],
       },
       f3m: {
@@ -267,7 +274,7 @@ export type Project = {
   inProgress?: boolean;
 };
 
-// Newest first — recruiters read top to bottom; the ones with a demo first, the thesis (still in progress) after them.
+// Newest first — recruiters read top to bottom; the ones with a demo first.
 export const projects: readonly Project[] = [
   {
     key: "jobradar",
@@ -283,6 +290,19 @@ export const projects: readonly Project[] = [
     ],
   },
   {
+    key: "thesis",
+    tags: ["Python", "FastAPI", "Vue.js", "LLMs", "PostgreSQL", "ClickHouse"],
+    github: links.dqvouch,
+    video: { src: "/projects/dqvouch.mp4", poster: "/projects/dqvouch-poster.jpg", shape: "wide" },
+    stats: [
+      { value: 67, suffix: "%", label: "found" },
+      { value: 221, label: "tests" },
+      { value: 2, label: "databases" },
+      { value: 7, label: "stages" },
+    ],
+    inProgress: true,
+  },
+  {
     key: "f3m",
     tags: ["React Native", "Node.js", "TypeScript", "PostgreSQL"],
     github: "https://github.com/MartimRedondo/F3M_APP",
@@ -293,11 +313,6 @@ export const projects: readonly Project[] = [
     tags: ["Vue.js", "Kubernetes", "Helm"],
     github: "https://github.com/JoaoCoelho2003/PictuRas",
     video: { src: "/projects/picturas.mp4", poster: "/projects/picturas-poster.jpg", shape: "wide" },
-  },
-  {
-    key: "thesis",
-    tags: ["Python", "LLMs", "SQL", "ClickHouse"],
-    inProgress: true,
   },
   {
     key: "li3",
