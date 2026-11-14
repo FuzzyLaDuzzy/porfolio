@@ -10,6 +10,7 @@ import {
   useReducedMotion,
   useScroll,
   useSpring,
+  useTransform,
   type Variants,
 } from "framer-motion";
 import { asset, education, links, projects, skills, text, type Lang } from "./content";
@@ -43,8 +44,9 @@ const pillButton =
 const solidButton =
   "inline-flex items-center justify-center gap-2 bg-white text-black border border-white rounded-full transition-colors duration-300 hover:bg-white/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white";
 
+// spotlight: the light that follows the mouse (globals.css)
 const cardClass =
-  "border border-white/10 p-5 sm:p-6 rounded-xl bg-black/70 backdrop-blur-sm text-white shadow-lg transition-all duration-300 hover:border-white/30 hover:shadow-2xl hover:shadow-black/40";
+  "spotlight relative border border-white/10 p-5 sm:p-6 rounded-xl bg-black/70 backdrop-blur-sm text-white shadow-lg transition-all duration-300 hover:border-white/30 hover:shadow-2xl hover:shadow-black/40";
 
 // Projects with a demo take a whole row, the others go two to a row. One left alone in its row (the next
 // project has a demo, or there is none) takes the whole row too, so there's no empty space beside it
@@ -62,6 +64,11 @@ const aloneInRow = new Set<string>();
   });
 }
 
+// The Projects filter: the languages and frameworks from Skills that some project lists in its tags
+const projectTechs = [...skills.languages, ...skills.frameworks]
+  .map((skill) => skill.name)
+  .filter((name) => projects.some((project) => project.tags.includes(name)));
+
 const SECTION_IDS = ["about", "skills", "projects", "education", "contacts"] as const;
 type SectionId = (typeof SECTION_IDS)[number];
 
@@ -76,7 +83,7 @@ function SectionHeading({ title }: { title: string }) {
         whileInView={{ width: 48 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
-        className="h-0.5 bg-white/70 mt-2 rounded-full"
+        className="h-0.5 bg-accent mt-2 rounded-full"
       />
     </div>
   );
@@ -108,7 +115,17 @@ function Section({
   );
 }
 
-function CopyButton({ value, label, doneLabel }: { value: string; label: string; doneLabel: string }) {
+function CopyButton({
+  value,
+  label,
+  doneLabel,
+  className = "px-3 py-1 text-xs",
+}: {
+  value: string;
+  label: string;
+  doneLabel: string;
+  className?: string;
+}) {
   const [done, setDone] = useState(false);
   return (
     <button
@@ -122,7 +139,7 @@ function CopyButton({ value, label, doneLabel }: { value: string; label: string;
           /* clipboard unavailable — ignore */
         }
       }}
-      className={`${pillButton} px-3 py-1 text-xs shrink-0`}
+      className={`${pillButton} ${className} shrink-0`}
       aria-live="polite"
     >
       {done ? doneLabel : label}
@@ -206,6 +223,49 @@ function ProjectVideo({ src, poster, label, enlargeLabel, reduceMotion, classNam
   );
 }
 
+/* ---------- the name comes in letter by letter, out of a blur ---------- */
+
+function RevealName({ name, reduceMotion }: { name: string; reduceMotion: boolean }) {
+  if (reduceMotion) return <>{name}</>;
+  let order = 0; // position of the letter in the whole name, for its delay
+  return (
+    <span aria-hidden>
+      {name.split(" ").map((word, w) => (
+        // words don't break inside; the space between them is outside, where a line may break
+        <span key={w}>
+          {w > 0 && " "}
+          <span className="inline-block whitespace-nowrap">
+            {[...word].map((letter, l) => (
+              <motion.span
+                key={l}
+                initial={{ opacity: 0, y: "0.35em", filter: "blur(8px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                transition={{ duration: 0.6, delay: 0.15 + order++ * 0.04, ease: [0.22, 1, 0.36, 1] }}
+                className="inline-block"
+              >
+                {letter}
+              </motion.span>
+            ))}
+          </span>
+        </span>
+      ))}
+    </span>
+  );
+}
+
+/* ---------- moves a little slower than the page as it scrolls by, for depth ---------- */
+
+function Parallax({ reduceMotion, className, children }: { reduceMotion: boolean; className: string; children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const y = useTransform(scrollYProgress, [0, 1], [14, -14]);
+  return (
+    <motion.div ref={ref} style={reduceMotion ? undefined : { y }} className={className}>
+      {children}
+    </motion.div>
+  );
+}
+
 /* ---------- typing title ---------- */
 
 function useTypewriter(words: readonly string[], disabled: boolean) {
@@ -249,13 +309,33 @@ export default function Home() {
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState<SectionId | null>(null);
   const navClicked = useRef(false); // after a nav click, keep that link lit until the user scrolls by hand
-  const reduceMotion = useReducedMotion() ?? false;
+  // The built HTML is the full-motion page (the build can't know the visitor's setting): switching to the
+  // reduced one only after the first render keeps that render the same as the HTML, which React requires
+  const prefersReducedMotion = useReducedMotion() ?? false;
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const reduceMotion = mounted && prefersReducedMotion;
 
   const t = text[lang];
   const typed = useTypewriter(t.titles, reduceMotion);
 
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30 });
+
+  // Scrolling away from the hero, it sinks a little slower than the page and fades out
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress: heroScrolled } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const heroOpacity = useTransform(heroScrolled, [0, 0.75], [1, 0]);
+  const heroScale = useTransform(heroScrolled, [0, 1], [1, 0.9]);
+  const heroY = useTransform(heroScrolled, [0, 1], [0, 120]);
+
+  // Education's timeline line draws itself down as its entries scroll up the screen
+  const timelineRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress: timelineScrolled } = useScroll({ target: timelineRef, offset: ["start 85%", "end 55%"] });
+  const timelineLine = useSpring(timelineScrolled, { stiffness: 120, damping: 30 });
+
+  // Projects: the technology picked in the filter, null for all
+  const [tech, setTech] = useState<string | null>(null);
 
   // Language: remember choice, otherwise follow the browser (pt-PT / pt-BR → PT)
   useEffect(() => {
@@ -308,6 +388,19 @@ export default function Home() {
     };
   }, []);
 
+  // The card under the mouse learns where the mouse is, for its spotlight (globals.css)
+  useEffect(() => {
+    const onMove = (e: PointerEvent) => {
+      const card = (e.target as Element | null)?.closest<HTMLElement>(".spotlight");
+      if (!card) return;
+      const box = card.getBoundingClientRect();
+      card.style.setProperty("--spot-x", `${e.clientX - box.left}px`);
+      card.style.setProperty("--spot-y", `${e.clientY - box.top}px`);
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => window.removeEventListener("pointermove", onMove);
+  }, []);
+
   // Close mobile menu with Escape and lock page scroll while it is open
   useEffect(() => {
     if (!menuOpen) return;
@@ -348,7 +441,7 @@ export default function Home() {
       <motion.div
         aria-hidden
         style={{ scaleX: progress }}
-        className="fixed top-0 left-0 right-0 h-0.5 bg-white/80 origin-left z-[55]"
+        className="fixed top-0 left-0 right-0 h-0.5 bg-accent origin-left z-[55]"
       />
 
       {/* Video background (compressed 3 MB loop + poster for instant paint) */}
@@ -382,7 +475,7 @@ export default function Home() {
             onClick={() => window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" })}
             className="font-semibold tracking-tight text-white text-lg"
           >
-            FS<span className="text-white/40">.</span>
+            FS<span className="text-accent">.</span>
           </button>
 
           {/* Desktop links */}
@@ -400,7 +493,7 @@ export default function Home() {
                 {active === item.id && (
                   <motion.span
                     layoutId="nav-underline"
-                    className="absolute left-0 right-0 -bottom-1.5 h-0.5 bg-white rounded-full"
+                    className="absolute left-0 right-0 -bottom-1.5 h-0.5 bg-accent rounded-full"
                   />
                 )}
               </li>
@@ -460,140 +553,140 @@ export default function Home() {
       </AnimatePresence>
 
       {/* ---------- Hero ---------- */}
-      <section className="min-h-[100svh] w-full flex flex-col items-center justify-center gap-5 pt-20 z-10 text-center">
+      <section ref={heroRef} className="min-h-[100svh] w-full flex flex-col items-center justify-center pt-20 z-10 text-center">
         <motion.div
-          initial={{ opacity: 0, scale: 0.85 }}
-          animate={reduceMotion ? { opacity: 1, scale: 1 } : { opacity: 1, scale: 1, y: [0, -10, 0] }}
-          transition={{
-            opacity: { duration: 0.8, ease: "easeOut" },
-            scale: { duration: 0.8, ease: "easeOut" },
-            y: { duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.8 },
-          }}
-          className="w-48 h-60 sm:w-64 sm:h-80 overflow-hidden relative rounded-full ring-2 ring-white/20 hover:ring-white/40 transition-[box-shadow] duration-300 shadow-[0_0_40px_rgba(255,255,255,0.12)]"
+          style={reduceMotion ? undefined : { opacity: heroOpacity, scale: heroScale, y: heroY }}
+          className="flex flex-col items-center gap-5"
         >
-          <Image
-            src={asset("/profile4.jpg")}
-            alt={`Photo of ${t.name}`}
-            width={988}
-            height={1123}
-            sizes="(min-width: 640px) 256px, 192px"
-            className="object-cover w-full h-full"
-            priority
-          />
-        </motion.div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={reduceMotion ? { opacity: 1, scale: 1 } : { opacity: 1, scale: 1, y: [0, -10, 0] }}
+            transition={{
+              opacity: { duration: 0.8, ease: "easeOut" },
+              scale: { duration: 0.8, ease: "easeOut" },
+              y: { duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.8 },
+            }}
+            className="w-48 h-60 sm:w-64 sm:h-80 overflow-hidden relative rounded-full ring-2 ring-white/20 hover:ring-white/40 transition-[box-shadow] duration-300 shadow-[0_0_40px_rgba(255,255,255,0.12)]"
+          >
+            <Image
+              src={asset("/profile4.jpg")}
+              alt={`Photo of ${t.name}`}
+              width={988}
+              height={1123}
+              sizes="(min-width: 640px) 256px, 192px"
+              className="object-cover w-full h-full"
+              priority
+            />
+          </motion.div>
 
 
-        <motion.span
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-xs sm:text-sm text-emerald-300"
-        >
-          <span className="relative flex w-2 h-2">
-            {!reduceMotion && <span className="absolute inline-flex w-full h-full rounded-full bg-emerald-400 opacity-75 animate-ping" />}
-            <span className="relative inline-flex w-2 h-2 rounded-full bg-emerald-400" />
-          </span>
-          {t.openToWork}
-        </motion.span>
-
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeInOut" }}
-          className="text-4xl sm:text-6xl font-bold text-white tracking-tight"
-        >
-          {t.name}
-        </motion.h1>
-
-        <p className="text-lg sm:text-xl text-gray-200 min-h-[1.75rem]" aria-label={t.titles.join(", ")}>
-          <span aria-hidden>{typed}</span>
           <motion.span
-            aria-hidden
-            animate={reduceMotion ? undefined : { opacity: [1, 0, 1] }}
-            transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
-            className="inline-block w-[2px] h-5 bg-gray-300 ml-1 align-middle"
-          />
-        </p>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="max-w-xl text-gray-300 text-sm sm:text-base leading-relaxed"
-        >
-          {t.tagline}
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="flex flex-wrap items-center justify-center gap-3 mt-1"
-        >
-          <motion.a
-            href={links.cv}
-            target="_blank"
-            rel="noopener noreferrer"
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.96 }}
-            className={`${solidButton} px-6 py-3 font-medium`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs sm:text-sm text-accent-soft"
           >
-            {t.downloadResume}
-          </motion.a>
-          <motion.button
-            onClick={() => scrollTo("contacts")}
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.96 }}
-            className={`${pillButton} px-6 py-3 font-medium`}
-          >
-            {t.contactMe}
-          </motion.button>
-        </motion.div>
+            <span className="relative flex w-2 h-2">
+              {!reduceMotion && <span className="absolute inline-flex w-full h-full rounded-full bg-accent opacity-75 animate-ping" />}
+              <span className="relative inline-flex w-2 h-2 rounded-full bg-accent" />
+            </span>
+            {t.openToWork}
+          </motion.span>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="flex gap-3"
-        >
-          {socials.map((s) => (
+          <h1 aria-label={t.name} className="text-4xl sm:text-6xl font-bold text-white tracking-tight">
+            <RevealName name={t.name} reduceMotion={reduceMotion} />
+          </h1>
+
+          <p className="text-lg sm:text-xl text-gray-200 min-h-[1.75rem]" aria-label={t.titles.join(", ")}>
+            <span aria-hidden>{typed}</span>
+            <motion.span
+              aria-hidden
+              animate={reduceMotion ? undefined : { opacity: [1, 0, 1] }}
+              transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
+              className="inline-block w-[2px] h-5 bg-accent ml-1 align-middle"
+            />
+          </p>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="max-w-xl text-gray-300 text-sm sm:text-base leading-relaxed"
+          >
+            {t.tagline}
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="flex flex-wrap items-center justify-center gap-3 mt-1"
+          >
             <motion.a
-              key={s.label}
-              href={s.href}
+              href={links.cv}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label={s.label}
-              title={s.label}
-              whileHover={{ scale: 1.12, y: -2 }}
-              whileTap={{ scale: 0.9 }}
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-white/90 hover:bg-white transition-colors"
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              className={`${solidButton} px-6 py-3 font-medium`}
             >
-              <Image src={asset(s.icon)} alt="" width={22} height={22} className={s.invert ? "invert" : ""} />
+              {t.downloadResume}
             </motion.a>
-          ))}
-        </motion.div>
+            <motion.button
+              onClick={() => scrollTo("contacts")}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              className={`${pillButton} px-6 py-3 font-medium`}
+            >
+              {t.contactMe}
+            </motion.button>
+          </motion.div>
 
-        <motion.button
-          onClick={() => scrollTo("about")}
-          aria-label={t.nav.about}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2 }}
-          className="mt-6 text-white/50 hover:text-white transition-colors"
-        >
-          <motion.svg
-            width="28"
-            height="28"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            animate={reduceMotion ? undefined : { y: [0, 6, 0] }}
-            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="flex gap-3"
           >
-            <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-          </motion.svg>
-        </motion.button>
+            {socials.map((s) => (
+              <motion.a
+                key={s.label}
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={s.label}
+                title={s.label}
+                whileHover={{ scale: 1.12, y: -2 }}
+                whileTap={{ scale: 0.9 }}
+                className="w-10 h-10 flex items-center justify-center rounded-full bg-white/90 hover:bg-white transition-colors"
+              >
+                <Image src={asset(s.icon)} alt="" width={22} height={22} className={s.invert ? "invert" : ""} />
+              </motion.a>
+            ))}
+          </motion.div>
+
+          <motion.button
+            onClick={() => scrollTo("about")}
+            aria-label={t.nav.about}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2 }}
+            className="mt-6 text-white/50 hover:text-white transition-colors"
+          >
+            <motion.svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              animate={reduceMotion ? undefined : { y: [0, 6, 0] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+            </motion.svg>
+          </motion.button>
+        </motion.div>
       </section>
 
       {/* ---------- About ---------- */}
@@ -657,6 +750,34 @@ export default function Home() {
 
       {/* ---------- Projects ---------- */}
       <Section id="projects" title={t.projectsTitle} wide>
+        {/* Pick a technology to light up the projects that use it; the others fade back */}
+        <div role="group" aria-label={t.filterLabel} className="flex flex-wrap justify-center gap-2 mb-6">
+          {[null, ...projectTechs].map((name) => {
+            const on = tech === name;
+            return (
+              <button
+                key={name ?? "all"}
+                type="button"
+                aria-pressed={on}
+                onClick={() => setTech(name)}
+                className={`relative rounded-full border px-3 py-1 text-xs transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${
+                  on ? "border-accent text-black" : "border-white/20 bg-black/50 text-gray-300 hover:border-white/50 hover:text-white"
+                }`}
+              >
+                {/* the white background slides over to the picked chip */}
+                {on && (
+                  <motion.span
+                    layoutId="tech-filter"
+                    transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 400, damping: 32 }}
+                    className="absolute inset-0 rounded-full bg-accent"
+                  />
+                )}
+                <span className="relative">{name ?? t.allProjects}</span>
+              </button>
+            );
+          })}
+        </div>
+
         <motion.div
           variants={staggerContainer}
           initial="hidden"
@@ -667,22 +788,25 @@ export default function Home() {
           {projects.map((project, index) => {
             const p = t.projects[project.key];
             const { video } = project;
+            const faded = tech !== null && !project.tags.includes(tech);
+            const fade = `transition-opacity duration-500 ${faded ? "opacity-25" : ""}`;
             return (
               <motion.article
                 key={project.key}
                 variants={staggerItem}
                 whileHover={{ y: -6 }}
-                className={`${cardClass} flex flex-col justify-between ${
+                className={`${cardClass} flex flex-col justify-between ${tech !== null && !faded ? "border-accent/60!" : ""} ${
                   !video ? (aloneInRow.has(project.key) ? "md:col-span-2" : "") : `md:col-span-2 md:grid md:gap-6 ${video.shape === "wide" ? "md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]" : "md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]"}`
                 }`}
               >
                 {video && (
                   // a phone app shows as a phone screen, on a soft backdrop. The others keep the video's own
                   // height (self-start): stretched to a taller text column, the Enlarge button fell below the video
-                  <div
-                    className={`relative mb-5 md:mb-0 ${
+                  <Parallax
+                    reduceMotion={reduceMotion}
+                    className={`relative mb-5 md:mb-0 ${fade} ${
                       video.shape === "phone"
-                        ? "aspect-[4/5] min-h-0 overflow-hidden flex justify-center rounded-lg border border-white/10 bg-gradient-to-b from-emerald-400/15 via-white/5 to-transparent py-3"
+                        ? "aspect-[4/5] min-h-0 overflow-hidden flex justify-center rounded-lg border border-white/10 bg-gradient-to-b from-accent/15 via-white/5 to-transparent py-3"
                         : "md:self-start"
                     }`}
                   >
@@ -698,9 +822,9 @@ export default function Home() {
                           : `w-full object-cover rounded-lg ${video.shape === "wide" ? "aspect-[16/10]" : "aspect-square"}`
                       }
                     />
-                  </div>
+                  </Parallax>
                 )}
-                <div className="flex flex-1 flex-col justify-between">
+                <div className={`flex flex-1 flex-col justify-between ${fade}`}>
                 <div>
                   <div className="flex items-baseline gap-2 mb-3">
                     <span className="text-xs font-mono text-white/40">{String(index + 1).padStart(2, "0")}</span>
@@ -776,55 +900,89 @@ export default function Home() {
 
       {/* ---------- Education ---------- */}
       <Section id="education" title={t.educationTitle}>
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={reveal}
-          className="flex flex-col gap-4"
-        >
-          {education.map((e) => (
-            <motion.div
-              key={e.key}
-              variants={staggerItem}
-              whileHover={{ y: -4 }}
-              className={`${cardClass} flex flex-wrap items-center justify-between gap-2`}
-            >
-              <div>
-                <h3 className="font-semibold">{t[e.key]}</h3>
-                <p className="text-gray-400 text-sm">{lang === "pt" ? "Universidade do Minho" : "University of Minho"}</p>
-              </div>
-              <span className="text-sm font-mono text-gray-300">
-                {e.from} – {e.to ?? t.present}
-              </span>
-            </motion.div>
-          ))}
-        </motion.div>
+        {/* A timeline: a faint line, the bright one drawing itself over it as the page scrolls, and a dot
+            per degree — green and pulsing for the one in progress */}
+        <div ref={timelineRef} className="relative pl-8">
+          <span aria-hidden className="absolute left-3 top-0 bottom-0 w-px bg-white/10" />
+          <motion.span
+            aria-hidden
+            style={{ scaleY: reduceMotion ? 1 : timelineLine }}
+            className="absolute left-3 top-0 bottom-0 w-px origin-top bg-gradient-to-b from-accent to-accent/20"
+          />
+          <motion.ol
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={reveal}
+            className="flex flex-col gap-4"
+          >
+            {education.map((e) => (
+              <motion.li key={e.key} variants={staggerItem} className="relative">
+                <span aria-hidden className="absolute -left-5 top-1/2 flex w-3 h-3 -translate-x-1/2 -translate-y-1/2">
+                  {!e.to && !reduceMotion && (
+                    <span className="absolute inline-flex w-full h-full rounded-full bg-accent opacity-75 animate-ping" />
+                  )}
+                  <span className={`relative inline-flex w-3 h-3 rounded-full ring-4 ring-black ${e.to ? "bg-white/70" : "bg-accent"}`} />
+                </span>
+                <motion.div
+                  whileHover={{ y: -4 }}
+                  className={`${cardClass} flex flex-wrap items-center justify-between gap-2`}
+                >
+                  <div>
+                    <h3 className="font-semibold">{t[e.key]}</h3>
+                    <p className="text-gray-400 text-sm">{lang === "pt" ? "Universidade do Minho" : "University of Minho"}</p>
+                  </div>
+                  <span className="text-sm font-mono text-gray-300">
+                    {e.from} – {e.to ?? t.present}
+                  </span>
+                </motion.div>
+              </motion.li>
+            ))}
+          </motion.ol>
+        </div>
       </Section>
 
       {/* ---------- Contact ---------- */}
       <Section id="contacts" title={t.contactsTitle}>
-        <p className="text-center text-gray-300 mb-6">{t.contactIntro}</p>
+        {/* The page ends on a big invitation, with the email as its main button */}
         <motion.div
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
           viewport={reveal}
-          className="grid gap-4 sm:grid-cols-2"
+          className="flex flex-col items-center text-center"
         >
-          <motion.div variants={staggerItem} className={`${cardClass} flex items-center gap-4 sm:col-span-2`}>
-            <span className="w-10 h-10 shrink-0 rounded-full bg-white flex items-center justify-center">
-              <Image src={asset("/email.png")} alt="" width={20} height={20} />
-            </span>
-            <div className="min-w-0 flex-1">
-              <h3 className="font-semibold">Email</h3>
-              <a href={`mailto:${links.email}`} className="text-sky-400 hover:underline break-all text-sm sm:text-base">
-                {links.email}
-              </a>
-            </div>
-            <CopyButton value={links.email} label={t.copy} doneLabel={t.copied} />
+          <motion.p variants={staggerItem} className="text-4xl sm:text-6xl font-bold tracking-tight text-white">
+            {t.contactHeadline}
+            <span className="text-accent">.</span>
+          </motion.p>
+          <motion.p variants={staggerItem} className="mt-4 max-w-xl text-gray-300">
+            {t.contactIntro}
+          </motion.p>
+          <motion.div variants={staggerItem} className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <motion.a
+              href={`mailto:${links.email}`}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.97 }}
+              className="inline-flex items-center gap-3 rounded-full bg-accent px-6 py-4 sm:px-8 sm:py-5 text-base sm:text-xl font-semibold text-black shadow-[0_0_48px_-12px_var(--accent)] transition-colors hover:bg-accent-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            >
+              <svg aria-hidden width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="5" width="18" height="14" rx="2" />
+                <path d="m3 7 9 6 9-6" />
+              </svg>
+              {links.email}
+            </motion.a>
+            <CopyButton value={links.email} label={t.copy} doneLabel={t.copied} className="px-5 py-3 text-sm" />
           </motion.div>
+        </motion.div>
 
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={reveal}
+          className="mt-12 grid gap-4 sm:grid-cols-2"
+        >
           <motion.a
             variants={staggerItem}
             href={links.linkedin}
@@ -837,7 +995,7 @@ export default function Home() {
             </span>
             <div>
               <h3 className="font-semibold">LinkedIn</h3>
-              <p className="text-sky-400">{t.name}</p>
+              <p className="text-accent">{t.name}</p>
             </div>
           </motion.a>
 
@@ -853,7 +1011,7 @@ export default function Home() {
             </span>
             <div>
               <h3 className="font-semibold">GitHub</h3>
-              <p className="text-sky-400">{links.githubUsername}</p>
+              <p className="text-accent">{links.githubUsername}</p>
             </div>
           </motion.a>
 
