@@ -274,7 +274,7 @@ export const projects: readonly Project[] = [
     tags: ["Python", "FastAPI", "Vue.js", "SQLite", "Android", "GitHub Actions"],
     github: links.jobradar,
     install: links.jobradarInstall,
-    video: { src: "/projects/jobradar.mp4", poster: "/projects/jobradar-poster.jpg", shape: "square" },
+    video: { src: "/projects/jobradar.mp4", poster: "/projects/jobradar-poster.jpg", shape: "wide" },
     stats: [
       { value: 30, suffix: "+", label: "sites" },
       { value: 248, label: "tests" },

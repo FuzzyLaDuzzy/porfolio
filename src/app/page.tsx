@@ -793,13 +793,15 @@ export default function Home() {
             const { video } = project;
             const faded = tech !== null && !project.tags.includes(tech);
             const fade = `transition-opacity duration-500 ${faded ? "opacity-25" : ""}`;
+            // a wide video is short next to a long text: on wider screens the numbers and buttons go under it
+            const split = video?.shape === "wide" && !!project.stats;
             return (
               <motion.article
                 key={project.key}
                 variants={staggerItem}
                 whileHover={{ y: -6 }}
                 className={`${cardClass} flex flex-col justify-between ${tech !== null && !faded ? "border-accent/60!" : ""} ${
-                  !video ? (aloneInRow.has(project.key) ? "md:col-span-2" : "") : `md:col-span-2 md:grid md:gap-6 ${video.shape === "phone" ? "md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]" : "md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]"}`
+                  !video ? (aloneInRow.has(project.key) ? "md:col-span-2" : "") : `md:col-span-2 md:grid md:gap-6 ${video.shape === "phone" ? "md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]" : "md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]"} ${split ? "md:grid-rows-[auto_1fr]" : ""}`
                 }`}
               >
                 {video && (
@@ -807,7 +809,7 @@ export default function Home() {
                   // height (self-start): stretched to a taller text column, the Enlarge button fell below the video
                   <Parallax
                     reduceMotion={reduceMotion}
-                    className={`relative mb-5 md:mb-0 ${fade} ${
+                    className={`relative mb-5 md:mb-0 ${fade} ${split ? "md:col-start-1 md:row-start-1" : ""} ${
                       video.shape === "phone"
                         ? "aspect-[4/5] min-h-0 overflow-hidden flex justify-center rounded-lg border border-white/10 bg-gradient-to-b from-accent/15 via-white/5 to-transparent py-3"
                         : "md:self-start"
@@ -827,8 +829,11 @@ export default function Home() {
                     />
                   </Parallax>
                 )}
-                <div className={`flex flex-1 flex-col justify-between ${fade}`}>
-                <div>
+                {/* with `split`, this box steps aside (md:contents) and its two parts take their own places in
+                    the card's grid: the text on the right, the numbers and buttons under the video. The fade goes
+                    on each part, since a `contents` box has no opacity of its own */}
+                <div className={`flex flex-1 flex-col justify-between ${split ? "md:contents" : ""}`}>
+                <div className={`${fade} ${split ? "md:col-start-2 md:row-start-1 md:row-span-2" : ""}`}>
                   <div className="flex items-baseline gap-2 mb-3">
                     <span className="text-xs font-mono text-white/40">{String(index + 1).padStart(2, "0")}</span>
                     <h3 className="font-semibold text-lg leading-snug">{p.title}</h3>
@@ -849,8 +854,10 @@ export default function Home() {
                       <li key={i}>{line}</li>
                     ))}
                   </ul>
+                </div>
+                <div className={`${fade} ${split ? "md:col-start-1 md:row-start-2 md:self-start" : ""}`}>
                   {project.stats && (
-                    <dl className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5">
+                    <dl className={`grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5 ${split ? "md:mt-0" : ""}`}>
                       {project.stats.map((stat) => (
                         <div key={stat.label} className="rounded-lg border border-white/10 bg-white/5 px-3 py-2">
                           <dt className="sr-only">{t.stats[stat.label]}</dt>
@@ -862,7 +869,6 @@ export default function Home() {
                       ))}
                     </dl>
                   )}
-                </div>
                 <div className="mt-6 flex flex-wrap gap-2">
                   {project.github && (
                     <a
@@ -893,6 +899,7 @@ export default function Home() {
                       {t.inProgress}
                     </span>
                   )}
+                </div>
                 </div>
                 </div>
               </motion.article>
