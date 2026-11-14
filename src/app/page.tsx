@@ -566,14 +566,17 @@ export default function Home() {
               scale: { duration: 0.8, ease: "easeOut" },
               y: { duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.8 },
             }}
-            className="w-48 h-60 sm:w-64 sm:h-80 overflow-hidden relative rounded-full ring-2 ring-white/20 hover:ring-white/40 transition-[box-shadow] duration-300 shadow-[0_0_40px_rgba(255,255,255,0.12)]"
+            // a true circle (same width and height), in the accent green
+            className="w-56 h-56 sm:w-72 sm:h-72 overflow-hidden relative rounded-full ring-2 ring-accent/50 hover:ring-accent/80 transition-[box-shadow] duration-300 shadow-[0_0_40px_color-mix(in_oklab,var(--accent)_20%,transparent)]"
           >
+            {/* a square crop of profile4.jpg on the head and shoulders: a CSS zoom inside the floating circle
+                drew the face outside the ring on phones */}
             <Image
-              src={asset("/profile4.jpg")}
+              src={asset("/profile4-square.jpg")}
               alt={`Photo of ${t.name}`}
-              width={988}
-              height={1123}
-              sizes="(min-width: 640px) 256px, 192px"
+              width={650}
+              height={650}
+              sizes="(min-width: 640px) 288px, 224px"
               className="object-cover w-full h-full"
               priority
             />
@@ -796,7 +799,7 @@ export default function Home() {
                 variants={staggerItem}
                 whileHover={{ y: -6 }}
                 className={`${cardClass} flex flex-col justify-between ${tech !== null && !faded ? "border-accent/60!" : ""} ${
-                  !video ? (aloneInRow.has(project.key) ? "md:col-span-2" : "") : `md:col-span-2 md:grid md:gap-6 ${video.shape === "wide" ? "md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]" : "md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]"}`
+                  !video ? (aloneInRow.has(project.key) ? "md:col-span-2" : "") : `md:col-span-2 md:grid md:gap-6 ${video.shape === "phone" ? "md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]" : "md:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]"}`
                 }`}
               >
                 {video && (
