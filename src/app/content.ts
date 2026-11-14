@@ -31,7 +31,7 @@ export const text = {
     menu: "Open menu",
     closeMenu: "Close menu",
     name: "Flávio Silva",
-    titles: ["Software Engineer", "Web Developer", "Designer"],
+    titles: ["Software Engineer", "Web Developer", "Full-Stack Developer"],
     tagline:
       "Master's student in Software Engineering at the University of Minho.",
     openToWork: "Open to junior roles · Braga",
@@ -133,7 +133,7 @@ export const text = {
     menu: "Abrir menu",
     closeMenu: "Fechar menu",
     name: "Flávio Silva",
-    titles: ["Engenheiro de Software", "Desenvolvedor Web", "Designer"],
+    titles: ["Engenheiro de Software", "Desenvolvedor Web", "Desenvolvedor Full-Stack"],
     tagline:
       "Estudante de Mestrado em Engenharia Informática na Universidade do Minho.",
     openToWork: "Disponível para vagas júnior · Braga",
