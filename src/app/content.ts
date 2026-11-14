@@ -73,7 +73,7 @@ export const text = {
       jobradar: {
         title: "JobRadar · Job Finder for Portugal",
         desc: [
-          "Finds junior jobs and internships on 30+ job boards and company careers sites at once, keeps the ones that fit your area and level, and scores each one against your profile.",
+          "Finds jobs at any level, from internships to senior and lead roles, on 30+ job boards and company careers sites at once, keeps the ones that fit your area, the roles you're after and your level, and scores each one against your profile.",
           "Optional AI (Gemini or Claude) explains each score, drafts the application message, tailors the CV and writes follow-up emails; applications are tracked through interview, offer or rejection.",
           "Python, FastAPI and SQLite with a Vue 3 interface. Ships as a Windows installer, one-line installers for macOS and Linux, and an Android app that runs the same Python code on the phone — every release is installed and tested on an emulator and on Windows by GitHub Actions.",
         ],
@@ -175,7 +175,7 @@ export const text = {
       jobradar: {
         title: "JobRadar · Procura de Emprego em Portugal",
         desc: [
-          "Procura vagas júnior e estágios em mais de 30 sites de emprego e páginas de carreiras ao mesmo tempo, guarda as que encaixam na tua zona e no teu nível e dá a cada uma uma pontuação face ao teu perfil.",
+          "Procura vagas de qualquer nível, do estágio a cargos sénior e de liderança, em mais de 30 sites de emprego e páginas de carreiras ao mesmo tempo, guarda as que encaixam na tua zona, nas funções que procuras e no teu nível e dá a cada uma uma pontuação face ao teu perfil.",
           "Com IA opcional (Gemini ou Claude), explica cada pontuação, escreve a mensagem de candidatura, ajusta o CV e redige emails de seguimento; acompanha as candidaturas até à entrevista, oferta ou rejeição.",
           "Python, FastAPI e SQLite com interface em Vue 3. Tem instalador para Windows, instaladores de uma linha para macOS e Linux e uma app Android que corre o mesmo código Python no telemóvel — cada versão é instalada e testada num emulador e em Windows pelo GitHub Actions.",
         ],
@@ -277,7 +277,7 @@ export const projects: readonly Project[] = [
     video: { src: "/projects/jobradar.mp4", poster: "/projects/jobradar-poster.jpg", shape: "square" },
     stats: [
       { value: 30, suffix: "+", label: "sites" },
-      { value: 221, label: "tests" },
+      { value: 248, label: "tests" },
       { value: 4, label: "platforms" },
       { value: 19, label: "seconds" },
     ],
