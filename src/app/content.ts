@@ -55,7 +55,8 @@ export const text = {
     install: "Install",
     inProgress: "In progress",
     moreProjects: "More university projects",
-    enlarge: "Enlarge",
+    enlarge: "Enlarge video",
+    closeVideo: "Back to the page",
     allProjects: "All",
     filterLabel: "Show projects by technology",
     stats: {
@@ -168,7 +169,8 @@ export const text = {
     install: "Instalar",
     inProgress: "Em curso",
     moreProjects: "Mais projetos da universidade",
-    enlarge: "Ampliar",
+    enlarge: "Ampliar vídeo",
+    closeVideo: "Voltar à página",
     allProjects: "Todos",
     filterLabel: "Mostrar projetos por tecnologia",
     stats: {

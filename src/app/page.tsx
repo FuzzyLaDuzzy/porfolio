@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   animate,
   motion,
@@ -184,11 +185,41 @@ function CountUp({ value, suffix = "", reduceMotion }: { value: number; suffix?:
 
 /* ---------- a project's demo: plays only while it's on screen ---------- */
 
-type ProjectVideoProps = { src: string; poster: string; label: string; enlargeLabel: string; reduceMotion: boolean; className: string };
+type ProjectVideoProps = {
+  src: string;
+  poster: string;
+  label: string;
+  enlargeLabel: string;
+  closeLabel: string;
+  reduceMotion: boolean;
+  className: string;
+};
 
-function ProjectVideo({ src, poster, label, enlargeLabel, reduceMotion, className }: ProjectVideoProps) {
+// Two arrows out (enlarge) or in (back to the card)
+function ExpandIcon({ inward = false }: { inward?: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      {inward ? (
+        <path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7" />
+      ) : (
+        <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+      )}
+    </svg>
+  );
+}
+
+// Where the enlarged video goes: centred, as big as the screen allows at the video's own shape
+type Enlarged = { from: DOMRect; left: number; top: number; w: number; h: number };
+
+function ProjectVideo({ src, poster, label, enlargeLabel, closeLabel, reduceMotion, className }: ProjectVideoProps) {
   const ref = useRef<HTMLVideoElement>(null);
+  const expandRef = useRef<HTMLButtonElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
   const inView = useInView(ref, { amount: 0.5 });
+  const [big, setBig] = useState<Enlarged | null>(null);
+  const [mounted, setMounted] = useState(false); // the enlarged video goes in <body>, which exists only in the browser
+
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     const video = ref.current;
@@ -197,24 +228,49 @@ function ProjectVideo({ src, poster, label, enlargeLabel, reduceMotion, classNam
     else video.pause();
   }, [inView, reduceMotion]);
 
-  // full screen to read the details; iPhones only have their own video player for it
+  // the video grows out of its card to the middle of the screen, over the dimmed page; the page doesn't scroll
+  // under it, and Esc, a click or the button take it back
   const enlarge = () => {
-    const video = ref.current as (HTMLVideoElement & { webkitEnterFullscreen?: () => void }) | null;
+    const video = ref.current;
     if (!video) return;
-    if (document.fullscreenElement) {
-      document.exitFullscreen().catch(() => {});
-      return;
-    }
-    if (video.requestFullscreen) video.requestFullscreen().catch(() => {});
-    else video.webkitEnterFullscreen?.();
-    video.play().catch(() => {});
+    const from = video.getBoundingClientRect();
+    const ratio = video.videoWidth && video.videoHeight ? video.videoWidth / video.videoHeight : from.width / from.height;
+    const w = Math.min(window.innerWidth * 0.92, window.innerHeight * 0.86 * ratio);
+    const h = w / ratio;
+    setBig({ from, left: (window.innerWidth - w) / 2, top: (window.innerHeight - h) / 2, w, h });
+  };
+
+  const close = () => {
+    setBig(null);
+    expandRef.current?.focus({ preventScroll: true });
+  };
+
+  useEffect(() => {
+    if (!big) return;
+    closeRef.current?.focus({ preventScroll: true });
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
+    document.addEventListener("keydown", onKey);
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = overflow;
+    };
+  }, [big]);
+
+  // the enlarged video starts exactly over the small one: same place, same size
+  const start = big && {
+    x: big.from.left - big.left,
+    y: big.from.top - big.top,
+    scaleX: big.from.width / big.w,
+    scaleY: big.from.height / big.h,
   };
 
   return (
     <>
       <video
         ref={ref}
-        className={`border border-white/10 bg-black cursor-zoom-in [&:fullscreen]:object-contain [&:fullscreen]:rounded-none [&:fullscreen]:cursor-zoom-out ${className}`}
+        className={`border border-white/10 bg-black cursor-zoom-in ${className}`}
         src={asset(src)}
         poster={asset(poster)}
         muted
@@ -226,13 +282,64 @@ function ProjectVideo({ src, poster, label, enlargeLabel, reduceMotion, classNam
         onClick={enlarge}
       />
       <button
+        ref={expandRef}
         type="button"
         onClick={enlarge}
-        className="absolute right-2 bottom-2 inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-black/75 px-3 py-1 text-xs text-white backdrop-blur-sm transition-colors hover:bg-white hover:text-black focus-visible:outline-2 focus-visible:outline-white"
+        aria-label={enlargeLabel}
+        title={enlargeLabel}
+        className="absolute right-2 bottom-2 grid place-items-center w-8 h-8 rounded-full border border-white/30 bg-black/75 text-white backdrop-blur-sm transition-colors hover:bg-white hover:text-black focus-visible:outline-2 focus-visible:outline-white"
       >
-        <span aria-hidden>⤢</span>
-        {enlargeLabel}
+        <ExpandIcon />
       </button>
+      {mounted &&
+        createPortal(
+          <AnimatePresence>
+            {big && start && (
+              <motion.div
+                key="enlarged"
+                role="dialog"
+                aria-modal="true"
+                aria-label={label}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: reduceMotion ? 0 : 0.25 }}
+                onClick={close}
+                className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm cursor-zoom-out"
+              >
+                <motion.video
+                  src={asset(src)}
+                  poster={asset(poster)}
+                  muted
+                  loop
+                  playsInline
+                  autoPlay={!reduceMotion}
+                  controls={reduceMotion}
+                  onLoadedMetadata={(e) => {
+                    e.currentTarget.currentTime = ref.current?.currentTime ?? 0; // carries on where the small one was
+                  }}
+                  style={{ position: "fixed", left: big.left, top: big.top, width: big.w, height: big.h, originX: 0, originY: 0 }}
+                  initial={start}
+                  animate={{ x: 0, y: 0, scaleX: 1, scaleY: 1 }}
+                  exit={start}
+                  transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 260, damping: 30 }}
+                  className="rounded-xl border border-white/15 bg-black object-contain shadow-2xl shadow-black/60"
+                />
+                <button
+                  ref={closeRef}
+                  type="button"
+                  onClick={close}
+                  aria-label={closeLabel}
+                  title={closeLabel}
+                  className="fixed right-4 top-4 grid place-items-center w-10 h-10 rounded-full border border-white/30 bg-black/75 text-white backdrop-blur-sm transition-colors hover:bg-white hover:text-black focus-visible:outline-2 focus-visible:outline-white"
+                >
+                  <ExpandIcon inward />
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body,
+        )}
     </>
   );
 }
@@ -834,6 +941,7 @@ export default function Home() {
                       poster={video.poster}
                       label={p.title}
                       enlargeLabel={t.enlarge}
+                      closeLabel={t.closeVideo}
                       reduceMotion={reduceMotion}
                       className={
                         video.shape === "phone"
