@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { links } from "./content";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,6 +51,24 @@ export const metadata: Metadata = {
   },
 };
 
+// Who this site is about, for search engines: the name tied to the GitHub and LinkedIn profiles
+const person = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Flávio Silva",
+  url: `https://fuzzyladuzzy.github.io${basePath}/`,
+  image: `https://fuzzyladuzzy.github.io${basePath}/profile4-square.jpg`,
+  jobTitle: "Software Engineer",
+  address: { "@type": "PostalAddress", addressLocality: "Braga", addressCountry: "PT" },
+  alumniOf: { "@type": "CollegeOrUniversity", name: "University of Minho" },
+  sameAs: [links.github, links.linkedin],
+};
+
+// The sections fade in as they scroll into view, so they start hidden (opacity 0) in the HTML. Without
+// JavaScript they would stay hidden: this shows them as they are
+const noScriptStyle =
+  '<style>[style*="opacity:0"]{opacity:1!important;transform:none!important;filter:none!important}</style>';
+
 export const viewport: Viewport = {
   themeColor: "#0a0a0a",
   colorScheme: "dark",
@@ -62,7 +81,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
+      <head>
+        <noscript dangerouslySetInnerHTML={{ __html: noScriptStyle }} />
+      </head>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(person).replace(/</g, "\\u003c") }}
+        />
+        {children}
+      </body>
     </html>
   );
 }

@@ -54,6 +54,7 @@ export const text = {
     seeCode: "See code",
     install: "Install",
     inProgress: "In progress",
+    moreProjects: "More university projects",
     enlarge: "Enlarge",
     allProjects: "All",
     filterLabel: "Show projects by technology",
@@ -77,8 +78,8 @@ export const text = {
       jobradar: {
         title: "JobRadar · Job Finder for Portugal",
         desc: [
-          "Finds jobs at any level, from internships to senior and lead roles, on 30+ job boards and company careers sites at once, keeps the ones that fit your area, the roles you're after and your level, and scores each one against your profile.",
-          "Optional AI (Gemini or Claude) explains each score, drafts the application message, tailors the CV and writes follow-up emails; applications are tracked through interview, offer or rejection.",
+          "Finds jobs at any level, from internships to senior and lead roles, on 30+ job boards and company careers sites at once, keeps the ones that fit your area, the roles you're after and your level, and scores each one against your profile. It also watches the careers pages of companies with no job board and tells you when a new job title appears.",
+          "Optional AI (Gemini or Claude) explains each score and powers Bliss, an assistant you can talk to, with a voice, that answers questions about your search and writes cover letters, application messages and follow-up emails; applications are tracked through interview, offer or rejection.",
           "Python, FastAPI and SQLite with a Vue 3 interface. Ships as a Windows installer, one-line installers for macOS and Linux, and an Android app that runs the same Python code on the phone — every release is installed and tested on an emulator and on Windows by GitHub Actions.",
         ],
       },
@@ -112,6 +113,13 @@ export const text = {
           "Program that stores and organizes large datasets and runs a list of user-provided queries from a file.",
           "Data is stored and indexed with hash tables and structs for fast lookups.",
           "Includes an interface that displays the results of each query.",
+        ],
+      },
+      cloud: {
+        title: "JobRadar on Azure · Infrastructure as Code",
+        desc: [
+          "Putting JobRadar on Microsoft Azure with all of its infrastructure written in Terraform: the app in Azure Container Apps behind its own sign-in, the twice-daily search as a scheduled job, secrets in Key Vault and logs in Log Analytics.",
+          "GitHub Actions checks every change with terraform plan and deploys the main branch through OIDC, with no cloud passwords stored anywhere.",
         ],
       },
       so: {
@@ -159,6 +167,7 @@ export const text = {
     seeCode: "Ver código",
     install: "Instalar",
     inProgress: "Em curso",
+    moreProjects: "Mais projetos da universidade",
     enlarge: "Ampliar",
     allProjects: "Todos",
     filterLabel: "Mostrar projetos por tecnologia",
@@ -182,8 +191,8 @@ export const text = {
       jobradar: {
         title: "JobRadar · Procura de Emprego em Portugal",
         desc: [
-          "Procura vagas de qualquer nível, do estágio a cargos sénior e de liderança, em mais de 30 sites de emprego e páginas de carreiras ao mesmo tempo, guarda as que encaixam na tua zona, nas funções que procuras e no teu nível e dá a cada uma uma pontuação face ao teu perfil.",
-          "Com IA opcional (Gemini ou Claude), explica cada pontuação, escreve a mensagem de candidatura, ajusta o CV e redige emails de seguimento; acompanha as candidaturas até à entrevista, oferta ou rejeição.",
+          "Procura vagas de qualquer nível, do estágio a cargos sénior e de liderança, em mais de 30 sites de emprego e páginas de carreiras ao mesmo tempo, guarda as que encaixam na tua zona, nas funções que procuras e no teu nível e dá a cada uma uma pontuação face ao teu perfil. Também vigia as páginas de carreiras de empresas sem plataforma de vagas e avisa quando aparece o título de uma vaga nova.",
+          "Com IA opcional (Gemini ou Claude), explica cada pontuação e dá vida ao Bliss, um assistente com quem falas, com voz, que responde sobre a tua procura e escreve cartas de apresentação, mensagens de candidatura e emails de seguimento; acompanha as candidaturas até à entrevista, oferta ou rejeição.",
           "Python, FastAPI e SQLite com interface em Vue 3. Tem instalador para Windows, instaladores de uma linha para macOS e Linux e uma app Android que corre o mesmo código Python no telemóvel — cada versão é instalada e testada num emulador e em Windows pelo GitHub Actions.",
         ],
       },
@@ -219,6 +228,13 @@ export const text = {
           "Inclui uma interface que apresenta os resultados de cada consulta.",
         ],
       },
+      cloud: {
+        title: "JobRadar na Azure · Infraestrutura como Código",
+        desc: [
+          "A pôr o JobRadar na Microsoft Azure com toda a infraestrutura escrita em Terraform: a app no Azure Container Apps atrás de um login próprio, a procura duas vezes por dia como tarefa agendada, os segredos no Key Vault e os registos no Log Analytics.",
+          "O GitHub Actions verifica cada alteração com terraform plan e faz o deploy do ramo main por OIDC, sem palavras-passe da cloud guardadas em lado nenhum.",
+        ],
+      },
       so: {
         title: "Sistema Cliente/Servidor de Tarefas",
         desc: [
@@ -238,6 +254,7 @@ export const skills: Record<"languages" | "frameworks" | "tools", Skill[]> = {
   languages: [
     { name: "C", icon: "/C.png", link: "https://en.wikipedia.org/wiki/C_(programming_language)" },
     { name: "Python", icon: "/python.png", link: "https://www.python.org/" },
+    { name: "Java", link: "https://dev.java/" },
     { name: "JavaScript", icon: "/javascript.png", link: "https://developer.mozilla.org/en-US/docs/Web/JavaScript" },
     { name: "TypeScript", icon: "/icons/typescript.svg", link: "https://www.typescriptlang.org/" },
     { name: "Haskell", icon: "/haskell.png", link: "https://www.haskell.org/" },
@@ -245,6 +262,7 @@ export const skills: Record<"languages" | "frameworks" | "tools", Skill[]> = {
   ],
   frameworks: [
     { name: "Vue.js", icon: "/vue.png", link: "https://vuejs.org/" },
+    { name: "React", icon: "/icons/react.svg", link: "https://react.dev/" },
     { name: "React Native", icon: "/icons/react.svg", link: "https://reactnative.dev/" },
     { name: "Node.js", icon: "/icons/nodejs.svg", link: "https://nodejs.org/" },
     { name: "Express", icon: "/icons/express.svg", mono: true, link: "https://expressjs.com/" },
@@ -256,6 +274,7 @@ export const skills: Record<"languages" | "frameworks" | "tools", Skill[]> = {
     { name: "Kubernetes", icon: "/icons/kubernetes.svg", link: "https://kubernetes.io/" },
     { name: "Helm", icon: "/icons/helm.svg", mono: true, link: "https://helm.sh/" },
     { name: "Git", icon: "/icons/git.svg", link: "https://git-scm.com/" },
+    { name: "Linux", link: "https://en.wikipedia.org/wiki/Linux" },
     { name: "SQLite", icon: "/icons/sqlite.svg", link: "https://www.sqlite.org/" },
     { name: "Docker", icon: "/icons/docker.svg", link: "https://www.docker.com/" },
     { name: "GitHub Actions", icon: "/icons/githubactions.svg", link: "https://github.com/features/actions" },
@@ -272,6 +291,7 @@ export type Project = {
   video?: { src: string; poster: string; shape: "square" | "wide" | "phone" };
   stats?: readonly { value: number; suffix?: string; label: keyof (typeof text)["en"]["stats"] }[];
   inProgress?: boolean;
+  academic?: boolean; // a smaller course project: listed compactly under the others
 };
 
 // Newest first — recruiters read top to bottom; the ones with a demo first.
@@ -284,7 +304,7 @@ export const projects: readonly Project[] = [
     video: { src: "/projects/jobradar.mp4", poster: "/projects/jobradar-poster.jpg", shape: "wide" },
     stats: [
       { value: 30, suffix: "+", label: "sites" },
-      { value: 248, label: "tests" },
+      { value: 338, label: "tests" },
       { value: 4, label: "platforms" },
       { value: 19, label: "seconds" },
     ],
@@ -315,14 +335,21 @@ export const projects: readonly Project[] = [
     video: { src: "/projects/picturas.mp4", poster: "/projects/picturas-poster.jpg", shape: "wide" },
   },
   {
+    key: "cloud",
+    tags: ["Azure", "Terraform", "Docker", "GitHub Actions"],
+    inProgress: true,
+  },
+  {
     key: "li3",
     tags: ["C", "Data Structures"],
     github: "https://github.com/josevasconcelos2002/LI3-project",
+    academic: true,
   },
   {
     key: "so",
     tags: ["C", "Operating Systems"],
     github: "https://github.com/FuzzyLaDuzzy/SOTP-2024",
+    academic: true,
   },
 ];
 

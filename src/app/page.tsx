@@ -48,17 +48,21 @@ const solidButton =
 const cardClass =
   "spotlight relative border border-white/10 p-5 sm:p-6 rounded-xl bg-black/70 backdrop-blur-sm text-white shadow-lg transition-all duration-300 hover:border-white/30 hover:shadow-2xl hover:shadow-black/40";
 
+// The smaller course projects go in a compact list under the cards
+const mainProjects = projects.filter((project) => !project.academic);
+const academicProjects = projects.filter((project) => project.academic);
+
 // Projects with a demo take a whole row, the others go two to a row. One left alone in its row (the next
 // project has a demo, or there is none) takes the whole row too, so there's no empty space beside it
 const aloneInRow = new Set<string>();
 {
   let besidePrevious = false;
-  projects.forEach((project, i) => {
+  mainProjects.forEach((project, i) => {
     if (project.video) {
       besidePrevious = false;
       return;
     }
-    const next = projects[i + 1];
+    const next = mainProjects[i + 1];
     if (!besidePrevious && (!next || next.video)) aloneInRow.add(project.key);
     besidePrevious = !besidePrevious;
   });
@@ -149,20 +153,30 @@ function CopyButton({
 
 /* ---------- a number that counts up the first time it's on screen ---------- */
 
+// The real number is in the page's HTML (search engines, screen readers, link previews, no JavaScript). Once
+// the page runs, a number still below the screen drops to 0, out of sight, and counts up when it's reached
 function CountUp({ value, suffix = "", reduceMotion }: { value: number; suffix?: string; reduceMotion: boolean }) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.6 });
-  const [shown, setShown] = useState(reduceMotion ? value : 0);
+  const [shown, setShown] = useState(value);
+  const counting = useRef(false);
 
   useEffect(() => {
-    if (!inView || reduceMotion) return;
+    const el = ref.current;
+    if (reduceMotion || !el || el.getBoundingClientRect().top < window.innerHeight) return;
+    counting.current = true;
+    setShown(0);
+  }, [reduceMotion]);
+
+  useEffect(() => {
+    if (!inView || !counting.current) return;
     const controls = animate(0, value, { duration: 1.4, ease: "easeOut", onUpdate: (v) => setShown(Math.round(v)) });
     return () => controls.stop();
-  }, [inView, value, reduceMotion]);
+  }, [inView, value]);
 
   return (
     <span ref={ref} className="tabular-nums">
-      {reduceMotion ? value : shown}
+      {shown}
       {suffix}
     </span>
   );
@@ -788,7 +802,7 @@ export default function Home() {
           viewport={reveal}
           className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch"
         >
-          {projects.map((project, index) => {
+          {mainProjects.map((project, index) => {
             const p = t.projects[project.key];
             const { video } = project;
             const faded = tech !== null && !project.tags.includes(tech);
@@ -906,6 +920,52 @@ export default function Home() {
             );
           })}
         </motion.div>
+
+        {/* the smaller course projects: one line each, so the cards above carry the page */}
+        {academicProjects.length > 0 && (
+          <div className={`${cardClass} mt-6`}>
+            <h3 className="text-xs font-mono uppercase tracking-wide text-white/50 mb-4">{t.moreProjects}</h3>
+            <ul className="divide-y divide-white/10">
+              {academicProjects.map((project) => {
+                const p = t.projects[project.key];
+                const faded = tech !== null && !project.tags.includes(tech);
+                return (
+                  <li
+                    key={project.key}
+                    className={`py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 transition-opacity duration-500 ${faded ? "opacity-25" : ""}`}
+                  >
+                    <div>
+                      <h4 className="font-semibold">{p.title}</h4>
+                      <p className="text-gray-300 text-sm leading-relaxed mt-1">{p.desc[0]}</p>
+                      <ul className="flex flex-wrap gap-1.5 mt-2">
+                        {project.tags.map((tag) => (
+                          <li
+                            key={tag}
+                            className="text-[11px] uppercase tracking-wide bg-white/5 border border-white/15 text-gray-300 px-2 py-0.5 rounded-full"
+                          >
+                            {tag}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    {project.github && (
+                      <a
+                        href={project.github}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`${pillButton} px-4 py-2 text-sm w-full sm:w-auto shrink-0 group`}
+                      >
+                        <Image src={asset("/github.png")} alt="" width={14} height={14} />
+                        {t.seeCode}
+                        <span className="transition-transform group-hover:translate-x-0.5">→</span>
+                      </a>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
       </Section>
 
       {/* ---------- Education ---------- */}
