@@ -18,24 +18,26 @@ import { asset, education, links, projects, skills, text, type Lang } from "./co
 
 /* ---------- animation presets ---------- */
 
+// Short and early: a section that takes long to show reads as a slow site
 const fadeInUp: Variants = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" } },
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" } },
 };
 
 const staggerContainer: Variants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.1 } },
+  visible: { transition: { staggerChildren: 0.04 } },
 };
 
 const staggerItem: Variants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } },
 };
 
-// Show a block as soon as its top is 80px into the screen. A share of its height ("amount") grows with
-// the block: the tall Projects section needed most of a phone screen of it in view before showing.
-const reveal = { once: true, margin: "0px 0px -80px 0px" } as const;
+// Start showing a block a little before its top reaches the screen (10% of the screen's height below it),
+// so it's already coming in when it appears. A share of its height ("amount") grows with the block: the
+// tall Projects section needed most of a phone screen of it in view before showing.
+const reveal = { once: true, margin: "0px 0px 10% 0px" } as const;
 
 /* ---------- shared styles ---------- */
 
@@ -87,7 +89,7 @@ function SectionHeading({ title }: { title: string }) {
         initial={{ width: 0 }}
         whileInView={{ width: 48 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
+        transition={{ duration: 0.45, delay: 0.05, ease: "easeOut" }}
         className="h-0.5 bg-accent mt-2 rounded-full"
       />
     </div>
@@ -344,10 +346,22 @@ function ProjectVideo({ src, poster, label, enlargeLabel, closeLabel, reduceMoti
   );
 }
 
+/* ---------- the first screen's entrance, in CSS (.hero-in in globals.css) ---------- */
+
+// When an element comes in (seconds after the page is drawn) and from where: lower (y), smaller, blurred
+function enter(delay: number, from: { y?: string; scale?: number; blur?: string; duration?: number } = {}) {
+  return {
+    "--delay": `${delay}s`,
+    "--from-y": from.y,
+    "--from-scale": from.scale,
+    "--from-blur": from.blur,
+    "--duration": from.duration && `${from.duration}s`,
+  } as React.CSSProperties;
+}
+
 /* ---------- the name comes in letter by letter, out of a blur ---------- */
 
-function RevealName({ name, reduceMotion }: { name: string; reduceMotion: boolean }) {
-  if (reduceMotion) return <>{name}</>;
+function RevealName({ name }: { name: string }) {
   let order = 0; // position of the letter in the whole name, for its delay
   return (
     <span aria-hidden>
@@ -357,15 +371,9 @@ function RevealName({ name, reduceMotion }: { name: string; reduceMotion: boolea
           {w > 0 && " "}
           <span className="inline-block whitespace-nowrap">
             {[...word].map((letter, l) => (
-              <motion.span
-                key={l}
-                initial={{ opacity: 0, y: "0.35em", filter: "blur(8px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                transition={{ duration: 0.6, delay: 0.15 + order++ * 0.04, ease: [0.22, 1, 0.36, 1] }}
-                className="inline-block"
-              >
+              <span key={l} className="inline-block hero-in" style={enter(0.1 + order++ * 0.035, { y: "0.35em", blur: "8px" })}>
                 {letter}
-              </motion.span>
+              </span>
             ))}
           </span>
         </span>
@@ -436,6 +444,19 @@ export default function Home() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   const reduceMotion = mounted && prefersReducedMotion;
+
+  // the moving background: after the page's load event, unless motion is reduced or the connection is slow
+  const [backgroundVideo, setBackgroundVideo] = useState(false);
+  const [backgroundPlaying, setBackgroundPlaying] = useState(false);
+  useEffect(() => {
+    if (!mounted || prefersReducedMotion) return;
+    const connection = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
+    if (connection?.saveData || ["slow-2g", "2g", "3g"].includes(connection?.effectiveType ?? "")) return;
+    const start = () => setBackgroundVideo(true);
+    if (document.readyState === "complete") start();
+    else window.addEventListener("load", start, { once: true });
+    return () => window.removeEventListener("load", start);
+  }, [mounted, prefersReducedMotion]);
 
   const t = text[lang];
   const typed = useTypewriter(t.titles, reduceMotion);
@@ -565,22 +586,20 @@ export default function Home() {
         className="fixed top-0 left-0 right-0 h-0.5 bg-accent origin-left z-[55]"
       />
 
-      {/* Video background (compressed 3 MB loop + poster for instant paint) */}
+      {/* Background: the still image at once; the moving one (a 3.8 MB video) only once the page has loaded,
+          so it never competes with the page's own files, and never on a slow connection or in data saver mode */}
       <div className="fixed inset-0 -z-10 overflow-hidden opacity-30" aria-hidden>
-        {reduceMotion ? (
-          <Image src={asset("/wavy-poster.jpg")} alt="" fill className="object-cover" priority />
-        ) : (
+        <Image src={asset("/wavy-poster.jpg")} alt="" fill className="object-cover" />
+        {backgroundVideo && (
           <video
-            className="w-full h-full object-cover"
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${backgroundPlaying ? "opacity-100" : "opacity-0"}`}
             autoPlay
             loop
             muted
             playsInline
-            preload="auto"
-            poster={asset("/wavy-poster.jpg")}
-          >
-            <source src={asset("/wavy-bg.mp4")} type="video/mp4" />
-          </video>
+            src={asset("/wavy-bg.mp4")}
+            onPlaying={() => setBackgroundPlaying(true)}
+          />
         )}
       </div>
       <div className="fixed inset-0 -z-10 bg-gradient-to-b from-black/10 via-black/30 to-black/60" aria-hidden />
@@ -679,73 +698,51 @@ export default function Home() {
           style={reduceMotion ? undefined : { opacity: heroOpacity, scale: heroScale, y: heroY }}
           className="flex flex-col items-center gap-5"
         >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.85 }}
-            animate={reduceMotion ? { opacity: 1, scale: 1 } : { opacity: 1, scale: 1, y: [0, -10, 0] }}
-            transition={{
-              opacity: { duration: 0.8, ease: "easeOut" },
-              scale: { duration: 0.8, ease: "easeOut" },
-              y: { duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.8 },
-            }}
-            // a true circle (same width and height), in the accent green
-            className="w-56 h-56 sm:w-72 sm:h-72 overflow-hidden relative rounded-full ring-2 ring-accent/50 hover:ring-accent/80 transition-[box-shadow] duration-300 shadow-[0_0_40px_color-mix(in_oklab,var(--accent)_20%,transparent)]"
-          >
-            {/* a square crop of profile4.jpg on the head and shoulders: a CSS zoom inside the floating circle
-                drew the face outside the ring on phones */}
-            <Image
-              src={asset("/profile4-square.jpg")}
-              alt={`Photo of ${t.name}`}
-              width={650}
-              height={650}
-              sizes="(min-width: 640px) 288px, 224px"
-              className="object-cover w-full h-full"
-              priority
-            />
-          </motion.div>
+          {/* the circle grows in, then floats: two boxes, since both move it (transform) */}
+          <div className="hero-in" style={enter(0, { scale: 0.85, duration: 0.8 })}>
+            <div
+              // a true circle (same width and height), in the accent green
+              className="float w-56 h-56 sm:w-72 sm:h-72 overflow-hidden relative rounded-full ring-2 ring-accent/50 hover:ring-accent/80 transition-[box-shadow] duration-300 shadow-[0_0_40px_color-mix(in_oklab,var(--accent)_20%,transparent)]"
+            >
+              {/* a square crop of profile4.jpg on the head and shoulders: a CSS zoom inside the floating circle
+                  drew the face outside the ring on phones */}
+              <Image
+                src={asset("/profile4-square.jpg")}
+                alt={`Photo of ${t.name}`}
+                width={650}
+                height={650}
+                sizes="(min-width: 640px) 288px, 224px"
+                className="object-cover w-full h-full"
+                priority
+              />
+            </div>
+          </div>
 
-
-          <motion.span
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs sm:text-sm text-accent-soft"
+          <span
+            className="hero-in inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-xs sm:text-sm text-accent-soft"
+            style={enter(0.15, { y: "10px" })}
           >
             <span className="relative flex w-2 h-2">
-              {!reduceMotion && <span className="absolute inline-flex w-full h-full rounded-full bg-accent opacity-75 animate-ping" />}
+              <span className="absolute inline-flex w-full h-full rounded-full bg-accent opacity-75 motion-safe:animate-ping" />
               <span className="relative inline-flex w-2 h-2 rounded-full bg-accent" />
             </span>
             {t.openToWork}
-          </motion.span>
+          </span>
 
           <h1 aria-label={t.name} className="text-4xl sm:text-6xl font-bold text-white tracking-tight">
-            <RevealName name={t.name} reduceMotion={reduceMotion} />
+            <RevealName name={t.name} />
           </h1>
 
           <p className="text-lg sm:text-xl text-gray-200 min-h-[1.75rem]" aria-label={t.titles.join(", ")}>
             <span aria-hidden>{typed}</span>
-            <motion.span
-              aria-hidden
-              animate={reduceMotion ? undefined : { opacity: [1, 0, 1] }}
-              transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
-              className="inline-block w-[2px] h-5 bg-accent ml-1 align-middle"
-            />
+            <span aria-hidden className="blink inline-block w-[2px] h-5 bg-accent ml-1 align-middle" />
           </p>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="max-w-xl text-gray-300 text-sm sm:text-base leading-relaxed"
-          >
+          <p className="hero-in max-w-xl text-gray-300 text-sm sm:text-base leading-relaxed" style={enter(0.3)}>
             {t.tagline}
-          </motion.p>
+          </p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex flex-wrap items-center justify-center gap-3 mt-1"
-          >
+          <div className="hero-in flex flex-wrap items-center justify-center gap-3 mt-1" style={enter(0.4, { y: "20px" })}>
             <motion.a
               href={links.cv}
               target="_blank"
@@ -764,14 +761,9 @@ export default function Home() {
             >
               {t.contactMe}
             </motion.button>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            className="flex gap-3"
-          >
+          <div className="hero-in flex gap-3" style={enter(0.5, { y: "20px" })}>
             {socials.map((s) => (
               <motion.a
                 key={s.label}
@@ -787,29 +779,18 @@ export default function Home() {
                 <Image src={asset(s.icon)} alt="" width={22} height={22} className={s.invert ? "invert" : ""} />
               </motion.a>
             ))}
-          </motion.div>
+          </div>
 
-          <motion.button
+          <button
             onClick={() => scrollTo("about")}
             aria-label={t.nav.about}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
-            className="mt-6 text-white/50 hover:text-white transition-colors"
+            className="hero-in mt-6 text-white/50 hover:text-white transition-colors"
+            style={enter(1)}
           >
-            <motion.svg
-              width="28"
-              height="28"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              animate={reduceMotion ? undefined : { y: [0, 6, 0] }}
-              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-            >
+            <svg className="nudge" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-            </motion.svg>
-          </motion.button>
+            </svg>
+          </button>
         </motion.div>
       </section>
 

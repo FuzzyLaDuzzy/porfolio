@@ -29,6 +29,46 @@ html {
   }
 }
 
+/* The first screen comes in with CSS, not JavaScript: it starts as soon as the page is drawn instead of
+   waiting for the scripts. Each element says where it comes from and when (page.tsx, enter()) */
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--from-y, 0)) scale(var(--from-scale, 1));
+    filter: blur(var(--from-blur, 0));
+  }
+}
+.hero-in {
+  animation: hero-in var(--duration, 0.6s) cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0s) both;
+}
+/* the photo floats once it's in, the title's cursor blinks, the arrow under the buttons points down */
+@keyframes float {
+  50% { transform: translateY(-10px); }
+}
+.float {
+  animation: float 5s ease-in-out 0.8s infinite;
+}
+@keyframes blink {
+  50% { opacity: 0; }
+}
+.blink {
+  animation: blink 1s ease-in-out infinite;
+}
+@keyframes nudge {
+  50% { transform: translateY(6px); }
+}
+.nudge {
+  animation: nudge 1.8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-in,
+  .float,
+  .blink,
+  .nudge {
+    animation: none;
+  }
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
