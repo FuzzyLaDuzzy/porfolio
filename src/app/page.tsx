@@ -515,13 +515,17 @@ export default function Home() {
       }
       setActive(current);
     };
-    const byHand = () => {
+    // the person scrolls by themselves: the highlight follows the page again. Pressing a button or a link
+    // isn't that: between a nav button's press and its click, the smooth scroll of the previous click
+    // still runs, and the highlight jumped to the section it was passing, the wrong way, before the click
+    const byHand = (e: Event) => {
+      if (e.type === "pointerdown" && (e.target as Element | null)?.closest?.("button, a")) return;
+      if (e instanceof KeyboardEvent && ["Enter", " ", "Tab"].includes(e.key)) return;
       navClicked.current = false;
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    // pointerdown comes before a nav button's click, so the click locks again right after
-    const handEvents = ["wheel", "pointerdown", "keydown"] as const;
+    const handEvents = ["wheel", "touchmove", "pointerdown", "keydown"] as const;
     handEvents.forEach((e) => window.addEventListener(e, byHand, { passive: true }));
 
     return () => {
@@ -633,6 +637,9 @@ export default function Home() {
                 {active === item.id && (
                   <motion.span
                     layoutId="nav-underline"
+                    // a quick spring: it gets there in about a quarter of a second, and a new click mid-way
+                    // carries on from where it is
+                    transition={reduceMotion ? { duration: 0 } : { type: "spring", stiffness: 550, damping: 40 }}
                     className="absolute left-0 right-0 -bottom-1.5 h-0.5 bg-accent rounded-full"
                   />
                 )}
